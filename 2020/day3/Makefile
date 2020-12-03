@@ -6,3 +6,6 @@ sol: sol.c
 
 clean:
 	rm -f sol
+
+check: sol
+	leaks --atExit -- ./sol < input
