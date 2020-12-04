@@ -1,11 +1,12 @@
-run: sol
-	./sol < input
+run: build/sol
+	build/sol < input
 
-sol: sol.c
-	$(CC) -o $@ $^
+check: build/sol
+	leaks --atExit -- build/sol < input
+
+build/sol: sol.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f sol
-
-check: sol
-	leaks --atExit -- ./sol < input
+	rm -rf build
