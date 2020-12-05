@@ -2,11 +2,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "day3.h"
+#include "2020/result/result.h"
 
 #define LINE_BUF 1024
 
-char **new_grid(size_t new_size, char **old_grid, size_t old_size) {
+static char **new_grid(size_t new_size, char **old_grid, size_t old_size) {
 	char **grid = malloc(new_size * sizeof(char*));
 	for (size_t i=0; i<old_size; i++) {
 		grid[i] = old_grid[i];
@@ -18,18 +18,18 @@ char **new_grid(size_t new_size, char **old_grid, size_t old_size) {
 	return grid;
 }
 
-void free_grid(char **grid, size_t size) {
+static void free_grid(char **grid, size_t size) {
 	for (size_t i=0; i<size; i++) {
 		free(grid[i]);
 	}
 	free(grid);
 }
 
-int is_tree(char **grid, size_t grid_width, size_t x, size_t y) {
+static int is_tree(char **grid, size_t grid_width, size_t x, size_t y) {
 	return grid[y][x % grid_width] == '#' ? 1 : 0;
 }
 
-size_t num_trees(char **grid, size_t grid_len, size_t grid_width, size_t slope_x, size_t slope_y) {
+static size_t num_trees(char **grid, size_t grid_len, size_t grid_width, size_t slope_x, size_t slope_y) {
 	size_t x = 0, y = 0, ret = 0;
 	while (y < grid_len) {
 		if (is_tree(grid, grid_width, x, y) == 1) {
@@ -41,7 +41,7 @@ size_t num_trees(char **grid, size_t grid_len, size_t grid_width, size_t slope_x
 	return ret;
 }
 
-void day3(day3_result *res, FILE *in) {
+void compute_result(result *res, FILE *in) {
 	size_t grid_len = 0;
 	size_t grid_size = 2;
 	char **grid = new_grid(grid_size, NULL, 0);

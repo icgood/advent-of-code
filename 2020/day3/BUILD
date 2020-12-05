@@ -1,12 +1,11 @@
 cc_library(
     name = "day3_lib",
     srcs = ["day3.c"],
-    hdrs = ["day3.h"],
+    deps = ["//2020/result:result"]
 )
 
 cc_binary(
     name = "day3",
-    srcs = ["day3_main.c"],
     deps = [":day3_lib"],
 )
 

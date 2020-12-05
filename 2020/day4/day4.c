@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "passport.h"
-#include "day4.h"
+#include "2020/result/result.h"
 
 static passport *new_passports(size_t new_size, passport *old_passports, size_t len) {
 	passport *new_passports = malloc(new_size * sizeof(passport));
@@ -13,7 +13,7 @@ static passport *new_passports(size_t new_size, passport *old_passports, size_t 
 	return new_passports;
 }
 
-void day4(day4_result *res, FILE *in) {
+void compute_result(result *res, FILE *in) {
 	size_t passports_len = 0, passports_size = 2;
 	passport *passports = new_passports(passports_size, NULL, 0);
 
@@ -29,7 +29,6 @@ void day4(day4_result *res, FILE *in) {
 	}
 
 	// part 1
-	res->part1 = 0;
 	for (size_t i=0; i<passports_len; i++) {
 		if (passport_has_fields(&passports[i])) {
 			res->part1++;
@@ -37,7 +36,6 @@ void day4(day4_result *res, FILE *in) {
 	}
 	
 	// part 2
-	res->part2 = 0;
 	for (size_t i=0; i<passports_len; i++) {
 		if (passport_is_valid(&passports[i])) {
 			res->part2++;
