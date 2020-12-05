@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "day3.h"
 
 #define LINE_BUF 1024
 
@@ -40,12 +41,12 @@ size_t num_trees(char **grid, size_t grid_len, size_t grid_width, size_t slope_x
 	return ret;
 }
 
-int main() {
+void day3(day3_result *res, FILE *in) {
 	size_t grid_len = 0;
 	size_t grid_size = 2;
 	char **grid = new_grid(grid_size, NULL, 0);
 
-	while (fgets(grid[grid_len], 1024, stdin) != NULL) {
+	while (fgets(grid[grid_len], 1024, in) != NULL) {
 		grid_len++;
 		if (grid_len >= grid_size) {
 			grid = new_grid(grid_size *= 2, grid, grid_len);
@@ -54,16 +55,14 @@ int main() {
 	size_t grid_width = strspn(grid[0], ".#");
 
 	// part 1
-	printf("part 1: %ld\n", num_trees(grid, grid_len, grid_width, 3, 1));
+	res->part1 = num_trees(grid, grid_len, grid_width, 3, 1);
 
 	// part 2
-	printf("part 2: %ld\n",
-			num_trees(grid, grid_len, grid_width, 1, 1) *
-			num_trees(grid, grid_len, grid_width, 3, 1) *
-			num_trees(grid, grid_len, grid_width, 5, 1) *
-			num_trees(grid, grid_len, grid_width, 7, 1) *
-			num_trees(grid, grid_len, grid_width, 1, 2));
+	res->part2 = num_trees(grid, grid_len, grid_width, 1, 1) *
+		num_trees(grid, grid_len, grid_width, 3, 1) *
+		num_trees(grid, grid_len, grid_width, 5, 1) *
+		num_trees(grid, grid_len, grid_width, 7, 1) *
+		num_trees(grid, grid_len, grid_width, 1, 2);
 
 	free_grid(grid, grid_size);
-	return 0;
 }

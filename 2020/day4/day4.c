@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "passport.h"
+#include "day4.h"
 
 static passport *new_passports(size_t new_size, passport *old_passports, size_t len) {
 	passport *new_passports = malloc(new_size * sizeof(passport));
@@ -12,13 +13,13 @@ static passport *new_passports(size_t new_size, passport *old_passports, size_t 
 	return new_passports;
 }
 
-int main() {
+void day4(day4_result *res, FILE *in) {
 	size_t passports_len = 0, passports_size = 2;
 	passport *passports = new_passports(passports_size, NULL, 0);
 
 	while (1) {
 		passport *current = &passports[passports_len];
-		if (passport_read(current, stdin) == 0) {
+		if (passport_read(current, in) == 0) {
 			break;
 		}
 		passports_len++;
@@ -26,28 +27,22 @@ int main() {
 			passports = new_passports(passports_size *= 2, passports, passports_len);
 		}
 	}
-	//for (size_t i=0; i<passports_len; i++) {
-	//	passport_print(&passports[i]);
-	//}
 
 	// part 1
-	int part1 = 0;
+	res->part1 = 0;
 	for (size_t i=0; i<passports_len; i++) {
 		if (passport_has_fields(&passports[i])) {
-			part1++;
+			res->part1++;
 		}
 	}
-	printf("part 1: %d\n", part1);
 	
 	// part 2
-	int part2 = 0;
+	res->part2 = 0;
 	for (size_t i=0; i<passports_len; i++) {
 		if (passport_is_valid(&passports[i])) {
-			part2++;
+			res->part2++;
 		}
 	}
-	printf("part 2: %d\n", part2);
 
 	free(passports);
-	return 0;
 }
