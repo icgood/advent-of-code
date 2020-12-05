@@ -72,4 +72,6 @@ void compute_result(result *res, FILE *in) {
 			res->part2 = i;
 		}
 	}
+
+	free(array);
 }

@@ -4,3 +4,5 @@ cc_library(
     hdrs = ["result.h"],
     visibility = ["//2020:__subpackages__"],
 )
+
+exports_files(["leaks-test.sh"], ["//2020:__subpackages__"])

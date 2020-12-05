@@ -15,3 +15,10 @@ cc_test(
     deps = [":day5_lib"],
     data = [":input", ":example"],
 )
+
+sh_test(
+    name = "day5_leaks",
+    srcs = ["//2020/result:leaks-test.sh"],
+    args = ["2020/day5/day5_test"],
+    data = [":day5_test"],
+)
