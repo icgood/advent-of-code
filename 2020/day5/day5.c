@@ -16,18 +16,18 @@ static uint16_t get_seat_id(char *line) {
 		return 0;
 	}
 
-	uint16_t seat_id = 0;
-	if (line[0] == 'B') seat_id |= (1 << 3 << 6);
-	if (line[1] == 'B') seat_id |= (1 << 3 << 5);
-	if (line[2] == 'B') seat_id |= (1 << 3 << 4);
-	if (line[3] == 'B') seat_id |= (1 << 3 << 3);
-	if (line[4] == 'B') seat_id |= (1 << 3 << 2);
-	if (line[5] == 'B') seat_id |= (1 << 3 << 1);
-	if (line[6] == 'B') seat_id |= (1 << 3 << 0);
-	if (line[7] == 'R') seat_id |= (1 << 2);
-	if (line[8] == 'R') seat_id |= (1 << 1);
-	if (line[9] == 'R') seat_id |= (1 << 0);
-	return seat_id;
+	uint16_t row_id = 0, col_id = 0;
+	if (line[0] == 'B') row_id |= (1 << 6);
+	if (line[1] == 'B') row_id |= (1 << 5);
+	if (line[2] == 'B') row_id |= (1 << 4);
+	if (line[3] == 'B') row_id |= (1 << 3);
+	if (line[4] == 'B') row_id |= (1 << 2);
+	if (line[5] == 'B') row_id |= (1 << 1);
+	if (line[6] == 'B') row_id |= (1 << 0);
+	if (line[7] == 'R') col_id |= (1 << 2);
+	if (line[8] == 'R') col_id |= (1 << 1);
+	if (line[9] == 'R') col_id |= (1 << 0);
+	return row_id * 8 + col_id;
 }
 
 void compute_result(result *res, FILE *in) {
