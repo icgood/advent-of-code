@@ -8,7 +8,7 @@ void print_result(result *res) {
 	printf("part 2: %lld\n", res->part2);
 }
 
-void test_result(char *filename, uint64_t check_part1, uint64_t check_part2) {
+void test_result(char *filename, int64_t check_part1, int64_t check_part2) {
 	result res = {};
 	FILE *in = fopen(filename, "r");
 	assert(in != NULL);

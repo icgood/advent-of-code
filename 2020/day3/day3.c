@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "2020/result/result.h"
+#include "result/result.h"
 
 #define LINE_BUF 1024
 

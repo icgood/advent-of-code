@@ -1,7 +1,7 @@
 cc_library(
     name = "day5_lib",
     srcs = ["day5.c"],
-    deps = ["//2020/result:result"],
+    deps = ["//result:result"],
 )
 
 cc_binary(
@@ -18,7 +18,7 @@ cc_test(
 
 sh_test(
     name = "day5_leaks",
-    srcs = ["//2020/result:leaks-test.sh"],
+    srcs = ["//result:leaks-test.sh"],
     args = ["2020/day5/day5_test"],
     data = [":day5_test"],
 )

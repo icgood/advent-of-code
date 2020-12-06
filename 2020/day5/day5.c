@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "2020/result/result.h"
+#include "result/result.h"
 
 static uint16_t *new_array(size_t new_size, uint16_t *old_array, size_t len) {
 	uint16_t *new_array = malloc(new_size * sizeof (uint16_t));

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "passport.h"
-#include "2020/result/result.h"
+#include "result/result.h"
 
 static passport *new_passports(size_t new_size, passport *old_passports, size_t len) {
 	passport *new_passports = malloc(new_size * sizeof(passport));
