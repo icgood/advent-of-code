@@ -1,6 +1,6 @@
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "result.h"
 
 void print_result(result *res) {
