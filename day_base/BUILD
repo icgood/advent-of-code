@@ -1,20 +1,19 @@
 cc_library(
     name = "day_result",
-    srcs = ["day_result.c"],
     hdrs = ["day_result.h"],
     visibility = ["//visibility:public"],
 )
 
 cc_library(
-    name = "day_result_run",
-    srcs = ["day_result_run.c"],
+    name = "day_run",
+    srcs = ["day_run.c"],
     deps = [":day_result"],
     visibility = ["//visibility:public"],
 )
 
 cc_library(
-    name = "day_result_test",
-    srcs = ["day_result_test.c"],
+    name = "day_check",
+    srcs = ["day_check.c"],
     deps = [":day_result"],
     visibility = ["//visibility:public"],
 )

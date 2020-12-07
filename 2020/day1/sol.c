@@ -36,7 +36,9 @@ void day_result_compute(day_result *res, FILE *in) {
 	}
 }
 
-void day_result_test(char *dir) {
-	day_result_check(dir, "example", 514579, 241861950);
-	day_result_check(dir, "input", 270144, 261342720);
+void day_answers_provide(day_answers *answers) {
+	*answers = (day_answers) {
+		{514579, 241861950},
+		{270144, 261342720},
+	};
 }

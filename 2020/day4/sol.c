@@ -45,7 +45,9 @@ void day_result_compute(day_result *res, FILE *in) {
 	free(passports);
 }
 
-void day_result_test(char *dir) {
-	day_result_check(dir, "example", 2, 2);
-	day_result_check(dir, "input", 192, 101);
+void day_answers_provide(day_answers *answers) {
+	*answers = (day_answers) {
+		{2, 2},
+		{192, 101},
+	};
 }

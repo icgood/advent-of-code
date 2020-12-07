@@ -67,7 +67,9 @@ void day_result_compute(day_result *res, FILE *in) {
 	free_grid(grid, grid_size);
 }
 
-void day_result_test(char *dir) {
-	day_result_check(dir, "example", 7, 336);
-	day_result_check(dir, "input", 216, 6708199680);
+void day_answers_provide(day_answers *answers) {
+	*answers = (day_answers) {
+		{7, 336},
+		{216, 6708199680},
+	};
 }

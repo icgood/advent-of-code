@@ -26,7 +26,9 @@ void day_result_compute(day_result *res, FILE *in) {
 	}
 }
 
-void day_result_test(char *dir) {
-	day_result_check(dir, "example", -3, 1);
-	day_result_check(dir, "input", 138, 1771);
+void day_answers_provide(day_answers *answers) {
+	*answers = (day_answers) {
+		{-3, 1},
+		{138, 1771},
+	};
 }

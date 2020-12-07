@@ -77,7 +77,9 @@ void day_result_compute(day_result *res, FILE *in) {
 	free(array);
 }
 
-void day_result_test(char *dir) {
-	day_result_check(dir, "example", 820, 0);
-	day_result_check(dir, "input", 965, 524);
+void day_answers_provide(day_answers *answers) {
+	*answers = (day_answers) {
+		{820, 0},
+		{965, 524},
+	};
 }

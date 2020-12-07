@@ -2,7 +2,7 @@ def day_cc_solution(year, day,
                     sol_file='sol.c', input_file='input', example_file='example',
                     deps=None, visibility=None):
     day_lib_name = '{}_lib'.format(day)
-    day_test_name = '{}_test'.format(day)
+    day_check_name = '{}_check'.format(day)
     day_leaks_name = '{}_leaks'.format(day)
     day_path = '{}/{}'.format(year, day)
 
@@ -15,14 +15,14 @@ def day_cc_solution(year, day,
 
     native.cc_binary(
         name = day,
-        deps = [':' + day_lib_name, '//day_base:day_result_run'],
+        deps = [':' + day_lib_name, '//day_base:day_run'],
         visibility = visibility,
     )
 
     native.cc_test(
-        name = day_test_name,
+        name = day_check_name,
         args = [day_path],
-        deps = [':' + day_lib_name, '//day_base:day_result_test'],
+        deps = [':' + day_lib_name, '//day_base:day_check'],
         data = [input_file, example_file],
         visibility = ['//visibility:private'],
     )
@@ -30,7 +30,7 @@ def day_cc_solution(year, day,
     native.sh_test(
         name = day_leaks_name,
         srcs = ['//day_base:leaks-test.sh'],
-        args = ['$(location //{}:{})'.format(day_path, day_test_name), day_path],
-        data = [':' + day_test_name],
+        args = ['$(location //{}:{})'.format(day_path, day_check_name), day_path],
+        data = [':' + day_check_name],
         visibility = ['//visibility:private'],
     )
