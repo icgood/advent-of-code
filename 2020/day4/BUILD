@@ -1,24 +1,13 @@
+load('//day_base:day_cc_solution.bzl', 'day_cc_solution')
+
 cc_library(
-    name = "day4_lib",
-    srcs = ["day4.c", "passport.c", "passport.h"],
-    deps = ["//result:result"],
+    name = "passport",
+    srcs = ["passport.c"],
+    hdrs = ["passport.h"],
 )
 
-cc_binary(
-    name = "day4",
-    deps = [":day4_lib"],
-)
-
-cc_test(
-    name = "day4_test",
-    srcs = ["day4_test.c"],
-    deps = [":day4_lib"],
-    data = [":input", ":example"],
-)
-
-sh_test(
-    name = "day4_leaks",
-    srcs = ["//result:leaks-test.sh"],
-    args = ["2020/day4/day4_test"],
-    data = [":day4_test"],
+day_cc_solution(
+    year = '2020',
+    day = 'day4',
+    deps = [":passport"],
 )

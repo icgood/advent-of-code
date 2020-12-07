@@ -1,24 +1,6 @@
-cc_library(
-    name = "sol_lib",
-    srcs = ["sol.c"],
-    deps = ["//result:result"],
-)
+load('//day_base:day_cc_solution.bzl', 'day_cc_solution')
 
-cc_binary(
-    name = "sol",
-    deps = [":sol_lib"],
-)
-
-cc_test(
-    name = "sol_test",
-    srcs = ["sol_test.c"],
-    deps = [":sol_lib"],
-    data = [":input", ":example"],
-)
-
-sh_test(
-    name = "sol_leaks",
-    srcs = ["//result:leaks-test.sh"],
-    args = ["2020/day6/sol_test"],
-    data = [":sol_test"],
+day_cc_solution(
+    year = '2020',
+    day = 'day6',
 )

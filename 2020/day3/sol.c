@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "result/result.h"
+#include "day_base/day_result.h"
 
 #define LINE_BUF 1024
 
@@ -41,7 +41,7 @@ static size_t num_trees(char **grid, size_t grid_len, size_t grid_width, size_t 
 	return ret;
 }
 
-void compute_result(result *res, FILE *in) {
+void day_result_compute(day_result *res, FILE *in) {
 	size_t grid_len = 0;
 	size_t grid_size = 2;
 	char **grid = new_grid(grid_size, NULL, 0);
@@ -65,4 +65,9 @@ void compute_result(result *res, FILE *in) {
 		num_trees(grid, grid_len, grid_width, 1, 2);
 
 	free_grid(grid, grid_size);
+}
+
+void day_result_test(char *dir) {
+	day_result_check(dir, "example", 7, 336);
+	day_result_check(dir, "input", 216, 6708199680);
 }

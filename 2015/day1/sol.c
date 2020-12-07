@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "result/result.h"
+#include "day_base/day_result.h"
 
-void compute_result(result *res, FILE *in) {
+void day_result_compute(day_result *res, FILE *in) {
 	char line[102400];
 	fgets(line, sizeof (line), in);
 	size_t len = strspn(line, "()");
@@ -24,4 +24,9 @@ void compute_result(result *res, FILE *in) {
 			break;
 		}
 	}
+}
+
+void day_result_test(char *dir) {
+	day_result_check(dir, "example", -3, 1);
+	day_result_check(dir, "input", 138, 1771);
 }

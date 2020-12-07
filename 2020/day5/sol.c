@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "result/result.h"
+#include "day_base/day_result.h"
 
 static uint16_t *new_array(size_t new_size, uint16_t *old_array, size_t len) {
 	uint16_t *new_array = malloc(new_size * sizeof (uint16_t));
@@ -30,7 +30,7 @@ static uint16_t get_seat_id(char *line) {
 	return row_id * 8 + col_id;
 }
 
-void compute_result(result *res, FILE *in) {
+void day_result_compute(day_result *res, FILE *in) {
 	char line[1024];
 	size_t array_len = 0, array_size = 2;
 	uint16_t *array = new_array(array_size, NULL, 0);
@@ -75,4 +75,9 @@ void compute_result(result *res, FILE *in) {
 	}
 
 	free(array);
+}
+
+void day_result_test(char *dir) {
+	day_result_check(dir, "example", 820, 0);
+	day_result_check(dir, "input", 965, 524);
 }

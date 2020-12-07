@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "result/result.h"
+#include "day_base/day_result.h"
 
 static uint32_t *new_array(size_t new_size, uint32_t *old_array, size_t len, int val) {
 	uint32_t *new_array = malloc(new_size * sizeof (uint32_t));
@@ -20,7 +20,7 @@ static int count_bits(uint32_t val) {
 	return count;
 }
 
-void compute_result(result *res, FILE *in) {
+void day_result_compute(day_result *res, FILE *in) {
 	char line[32];
 	size_t len = 0, size = 2;
 	uint32_t *array1 = new_array(size, NULL, 0, 0);
@@ -58,4 +58,9 @@ void compute_result(result *res, FILE *in) {
 
 	free(array1);
 	free(array2);
+}
+
+void day_result_test(char *dir) {
+	day_result_check(dir, "example", 11, 6);
+	day_result_check(dir, "input", 7283, 3520);
 }

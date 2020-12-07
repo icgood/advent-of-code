@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "passport.h"
-#include "result/result.h"
+#include "day_base/day_result.h"
 
 static passport *new_passports(size_t new_size, passport *old_passports, size_t len) {
 	passport *new_passports = malloc(new_size * sizeof(passport));
@@ -13,7 +13,7 @@ static passport *new_passports(size_t new_size, passport *old_passports, size_t 
 	return new_passports;
 }
 
-void compute_result(result *res, FILE *in) {
+void day_result_compute(day_result *res, FILE *in) {
 	size_t passports_len = 0, passports_size = 2;
 	passport *passports = new_passports(passports_size, NULL, 0);
 
@@ -43,4 +43,9 @@ void compute_result(result *res, FILE *in) {
 	}
 
 	free(passports);
+}
+
+void day_result_test(char *dir) {
+	day_result_check(dir, "example", 2, 2);
+	day_result_check(dir, "input", 192, 101);
 }
