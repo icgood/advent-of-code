@@ -4,8 +4,8 @@
 #include "passport.h"
 
 static char *read_value(value *v, char *line) {
-	v->data = line;
 	v->len = strcspn(line, " \n");
+	strncpy(v->data, line, sizeof (line_buf));
 	return line + v->len;
 }
 

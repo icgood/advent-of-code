@@ -15,14 +15,15 @@ def day_cc_solution(year, day,
 
     native.cc_binary(
         name = day,
-        deps = [':' + day_lib_name, '//day_base:day_run'],
+        deps = ['//day_base:day_run', ':' + day_lib_name],
+        data = [input_file, example_file],
         visibility = visibility,
     )
 
     native.cc_test(
         name = day_check_name,
         args = [day_path],
-        deps = [':' + day_lib_name, '//day_base:day_check'],
+        deps = ['//day_base:day_check', ':' + day_lib_name],
         data = [input_file, example_file],
         visibility = ['//visibility:private'],
     )

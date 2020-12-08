@@ -4,7 +4,7 @@
 typedef char line_buf[1024];
 
 typedef struct {
-	char *data;
+	line_buf data;
 	int len;
 } value;
 
