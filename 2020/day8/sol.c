@@ -41,7 +41,7 @@ static size_t run(struct array_data *data, instruction *array, int *accumulator)
 	return pos;
 }
 
-void day_result_compute(day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result *res, FILE *in) {
 	char line[1024];
 	struct array_data data;
 	instruction *array;
@@ -81,7 +81,7 @@ void day_result_compute(day_result *res, FILE *in) {
 	array_free(&data);
 }
 
-void day_answers_provide(day_answers *answers) {
+void day_answers_provide(day_arguments *args, day_answers *answers) {
 	*answers = (day_answers) {
 		{5, 8},
 		{1859, 1235},

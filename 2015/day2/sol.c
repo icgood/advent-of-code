@@ -30,7 +30,7 @@ static uint32_t smallest_perimeter(rect *r) {
 	return one_two < three ? one_two : three;
 }
 
-void day_result_compute(day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result *res, FILE *in) {
 	size_t len = 0, size = 2;
 	rect *array = new_array(size, NULL, 0);
 	char line[1024];
@@ -61,7 +61,7 @@ void day_result_compute(day_result *res, FILE *in) {
 	free(array);
 }
 
-void day_answers_provide(day_answers *answers) {
+void day_answers_provide(day_arguments *args, day_answers *answers) {
 	*answers = (day_answers) {
 		{101, 48},
 		{1606483, 3842356},

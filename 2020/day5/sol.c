@@ -30,7 +30,7 @@ static uint16_t get_seat_id(char *line) {
 	return row_id * 8 + col_id;
 }
 
-void day_result_compute(day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result *res, FILE *in) {
 	char line[1024];
 	size_t array_len = 0, array_size = 2;
 	uint16_t *array = new_array(array_size, NULL, 0);
@@ -77,7 +77,7 @@ void day_result_compute(day_result *res, FILE *in) {
 	free(array);
 }
 
-void day_answers_provide(day_answers *answers) {
+void day_answers_provide(day_arguments *args, day_answers *answers) {
 	*answers = (day_answers) {
 		{820, 0},
 		{965, 524},

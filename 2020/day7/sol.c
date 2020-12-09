@@ -52,7 +52,7 @@ static int count_contained(color *c, struct hashmap_data *colors, color *array) 
 	return total;
 }
 
-void day_result_compute(day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result *res, FILE *in) {
 	char line[1024];
 	struct hashmap_data colors;
 	color *array;
@@ -94,7 +94,7 @@ void day_result_compute(day_result *res, FILE *in) {
 	hashmap_free(&colors);
 }
 
-void day_answers_provide(day_answers *answers) {
+void day_answers_provide(day_arguments *args, day_answers *answers) {
 	*answers = (day_answers) {
 		{4, 32},
 		{161, 30899},

@@ -13,7 +13,7 @@ static passport *new_passports(size_t new_size, passport *old_passports, size_t 
 	return new_passports;
 }
 
-void day_result_compute(day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result *res, FILE *in) {
 	size_t passports_len = 0, passports_size = 2;
 	passport *passports = new_passports(passports_size, NULL, 0);
 
@@ -45,7 +45,7 @@ void day_result_compute(day_result *res, FILE *in) {
 	free(passports);
 }
 
-void day_answers_provide(day_answers *answers) {
+void day_answers_provide(day_arguments *args, day_answers *answers) {
 	*answers = (day_answers) {
 		{2, 2},
 		{192, 101},
