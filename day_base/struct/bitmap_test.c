@@ -11,11 +11,17 @@ typedef struct {
 int main() {
 	struct bitmap_data data;
 
-	bitmap_init(&data, 10);
+	bitmap_init(&data, 5);
 
 	bitmap_set(&data, 3);
 	bitmap_set(&data, 7);
+	bitmap_resize(&data, 10);
+	bitmap_set(&data, 8);
+	bitmap_unset(&data, 8);
 	bitmap_set(&data, 9);
+
+	assert(16 == bitmap_len(&data));
+	assert(3 == bitmap_count(&data));
 
 	assert(0 == bitmap_get(&data, 0));
 	assert(0 == bitmap_get(&data, 1));
