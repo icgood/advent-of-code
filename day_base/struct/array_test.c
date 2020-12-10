@@ -13,10 +13,16 @@ int main() {
 	test *array;
 
 	array_init(&data, &array, sizeof (test));
-	for (uint64_t i=0; i<100; i++) {
+	for (uint64_t i=0; i<90; i++) {
 		size_t idx = array_add(&data);
 		array[idx].num = i;
 		array[idx].letter = 'a' + (i % 26);
+	}
+
+	array_resize(&data, 100);
+	for (size_t idx=90; idx<100; idx++) {
+		array[idx].num = idx;
+		array[idx].letter = 'a' + (idx % 26);
 	}
 
 	uint64_t total = 0;
@@ -24,6 +30,7 @@ int main() {
 		total += array[idx].num;
 		assert('a' + (idx % 26) == array[idx].letter);
 	}
+
 	assert(4950 == total);
 
 	array_free(&data);

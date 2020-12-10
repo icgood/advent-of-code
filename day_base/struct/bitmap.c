@@ -24,6 +24,14 @@ size_t bitmap_count(struct bitmap_data *data) {
 	return count;
 }
 
+size_t bitmap_max(struct bitmap_data *data) {
+	size_t max = 0;
+	for (size_t i=0; i<bitmap_len(data); i++) {
+		if (bitmap_get(data, i)) max = i;
+	}
+	return max;
+}
+
 void bitmap_set(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
 	size_t bit = 1 << (pos % 8);
@@ -39,7 +47,8 @@ void bitmap_unset(struct bitmap_data *data, size_t pos) {
 int bitmap_get(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
 	size_t bit = 1 << (pos % 8);
-	return data->bitmap_ptr[idx] & bit ? 1 : 0;
+	if (idx < data->size) return data->bitmap_ptr[idx] & bit ? 1 : 0;
+	else return 0;
 }
 
 void bitmap_resize(struct bitmap_data *data, size_t len) {

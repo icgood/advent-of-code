@@ -20,14 +20,22 @@ void *array_pointer(struct array_data *data) {
 
 size_t array_add(struct array_data *data) {
 	size_t index = data->len;
-	if (++data->len >= data->size) {
+	array_resize(data, index+1);
+	return index;
+}
+
+void array_resize(struct array_data *data, size_t len) {
+	size_t new_size = data->size;
+	while (len > new_size) new_size *= 2;
+	if (new_size > data->size) {
 		size_t entry_size = data->entry_size;
 		void *old_array_ptr = *data->array_ptr;
-		void *new_array_ptr = *data->array_ptr = calloc(data->size *= 2, entry_size);
+		void *new_array_ptr = *data->array_ptr = calloc(new_size, entry_size);
 		memcpy(new_array_ptr, old_array_ptr, data->len * entry_size);
 		free(old_array_ptr);
+		data->size = new_size;
 	}
-	return index;
+	data->len = len;
 }
 
 void array_free(struct array_data *data) {

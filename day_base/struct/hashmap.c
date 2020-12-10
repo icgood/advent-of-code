@@ -35,7 +35,7 @@ void *hashmap_pointer(struct hashmap_data *data) {
 	return array_pointer(&data->array_data);
 }
 
-size_t hashmap_add(struct hashmap_data *data, const char *key, size_t key_len) {
+size_t hashmap_add(struct hashmap_data *data, const void *key, size_t key_len) {
 	size_t key_hash = hash(key, key_len-1);
 	size_t bucket_idx = key_hash % data->num_buckets;
 	size_t index = array_add(&data->array_data);
@@ -44,7 +44,7 @@ size_t hashmap_add(struct hashmap_data *data, const char *key, size_t key_len) {
 	return index;
 }
 
-size_t *hashmap_lookup(struct hashmap_data *data, const char *key, size_t key_len) {
+size_t *hashmap_lookup(struct hashmap_data *data, const void *key, size_t key_len) {
 	size_t key_hash = hash(key, key_len-1);
 	size_t bucket_idx = key_hash % data->num_buckets;
 	struct hashmap_bucket *iter = data->buckets[bucket_idx];
