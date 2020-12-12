@@ -38,16 +38,16 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	// part 1
 	state_t state1 = {};
 	for (size_t i=0; i<array_len(&array); i++) {
-		apply_t *apply = part1_functions[instructions[i].action];
-		(*apply)(instructions[i].value, &state1);
+		apply_t apply = part1_functions[instructions[i].action];
+		apply(instructions[i].value, &state1);
 	}
 	res->part1 = abs(state1.ship_north_south) + abs(state1.ship_east_west);
 
 	// part 2
 	state_t state2 = {0, 0, 0, 1, 10};
 	for (size_t i=0; i<array_len(&array); i++) {
-		apply_t *apply = part2_functions[instructions[i].action];
-		(*apply)(instructions[i].value, &state2);
+		apply_t apply = part2_functions[instructions[i].action];
+		apply(instructions[i].value, &state2);
 	}
 	res->part2 = abs(state2.ship_north_south) + abs(state2.ship_east_west);
 

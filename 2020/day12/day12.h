@@ -11,8 +11,8 @@ typedef struct {
 	int wp_east_west;
 } state_t;
 
-typedef void apply_t(unsigned int value, state_t *state);
+typedef void (*apply_t)(unsigned int value, state_t *state);
 
-typedef apply_t *apply_funcs_t[7];
+typedef apply_t apply_funcs_t[7];
 
 #endif
