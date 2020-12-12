@@ -7,125 +7,124 @@
 
 typedef char line_buf[1024];
 
+struct seats {
+	line_buf *grid;
+	size_t width;
+	size_t height;
+};
+
+typedef int count_adjacent(struct seats *, size_t, size_t);
+
 static int seat_occupied(char seat) {
 	return seat == '#' || seat == '>';
 }
 
-static int count_adjacent_part1(line_buf *seats, size_t width, size_t height, size_t x, size_t y) {
+static int count_adjacent_part1(struct seats *seats, size_t x, size_t y) {
 	int count = 0;
-	if (y > 0 && x > 0 && seat_occupied(seats[y-1][x-1])) count++;
-	if (y > 0 && seat_occupied(seats[y-1][x])) count++;
-	if (y > 0 && seat_occupied(seats[y-1][x+1])) count++;
-	if (x > 0 && seat_occupied(seats[y][x-1])) count++;
-	if (seat_occupied(seats[y][x+1])) count++;
-	if (x > 0 && seat_occupied(seats[y+1][x-1])) count++;
-	if (seat_occupied(seats[y+1][x])) count++;
-	if (seat_occupied(seats[y+1][x+1])) count++;
+	line_buf *grid = seats->grid;
+	if (y > 0 && x > 0 && seat_occupied(grid[y-1][x-1])) count++;
+	if (y > 0 && seat_occupied(grid[y-1][x])) count++;
+	if (y > 0 && seat_occupied(grid[y-1][x+1])) count++;
+	if (x > 0 && seat_occupied(grid[y][x-1])) count++;
+	if (seat_occupied(grid[y][x+1])) count++;
+	if (x > 0 && seat_occupied(grid[y+1][x-1])) count++;
+	if (seat_occupied(grid[y+1][x])) count++;
+	if (seat_occupied(grid[y+1][x+1])) count++;
 	return count;
 }
 
-static int count_adjacent_part2(line_buf *seats, size_t width, size_t height, size_t x, size_t y) {
+static int count_adjacent_part2(struct seats *seats, size_t x, size_t y) {
 	int count = 0;
+	size_t width = seats->width, height = seats->height;
+	line_buf *grid = seats->grid;
 	// W 
 	if (x > 0) {
 		for (size_t x2=x-1; x2>=0; x2--) {
-			if (seat_occupied(seats[y][x2])) count++;
-			if (seats[y][x2] != '.') break;
+			if (seat_occupied(grid[y][x2])) count++;
+			if (grid[y][x2] != '.') break;
 		}
 	}
 	// E
 	for (size_t x2=x+1; x2<width; x2++) {
-		if (seat_occupied(seats[y][x2])) count++;
-		if (seats[y][x2] != '.') break;
+		if (seat_occupied(grid[y][x2])) count++;
+		if (grid[y][x2] != '.') break;
 	}
 	// N
 	if (y > 0) {
 		for (size_t y2=y-1; y2>=0; y2--) {
-			if (seat_occupied(seats[y2][x])) count++;
-			if (seats[y2][x] != '.') break;
+			if (seat_occupied(grid[y2][x])) count++;
+			if (grid[y2][x] != '.') break;
 		}
 	}
 	// S
 	for (size_t y2=y+1; y2<height; y2++) {
-		if (seat_occupied(seats[y2][x])) count++;
-		if (seats[y2][x] != '.') break;
+		if (seat_occupied(grid[y2][x])) count++;
+		if (grid[y2][x] != '.') break;
 	}
 	// NW
 	if (x > 0 && y > 0) {
 		for (size_t x2=x-1, y2=y-1; x2>=0 && y2>=0; x2--, y2--) {
-			if (seat_occupied(seats[y2][x2])) count++;
-			if (seats[y2][x2] != '.') break;
+			if (seat_occupied(grid[y2][x2])) count++;
+			if (grid[y2][x2] != '.') break;
 		}
 	}
 	// NE
 	if (y > 0) {
 		for (size_t x2=x+1, y2=y-1; x2<width && y2>=0; x2++, y2--) {
-			if (seat_occupied(seats[y2][x2])) count++;
-			if (seats[y2][x2] != '.') break;
+			if (seat_occupied(grid[y2][x2])) count++;
+			if (grid[y2][x2] != '.') break;
 		}
 	}
 	// SW
 	if (x > 0) {
 		for (size_t x2=x-1, y2=y+1; x2>=0 && y2<height; x2--, y2++) {
-			if (seat_occupied(seats[y2][x2])) count++;
-			if (seats[y2][x2] != '.') break;
+			if (seat_occupied(grid[y2][x2])) count++;
+			if (grid[y2][x2] != '.') break;
 		}
 	}
 	// SE
 	for (size_t x2=x+1, y2=y+1; x2<width && y2<height; x2++, y2++) {
-		if (seat_occupied(seats[y2][x2])) count++;
-		if (seats[y2][x2] != '.') break;
+		if (seat_occupied(grid[y2][x2])) count++;
+		if (grid[y2][x2] != '.') break;
 	}
 	return count;
 }
 
-static void swap_all(line_buf *seats, size_t width, size_t height, char from, char to) {
+static void swap_all(struct seats *seats, char from, char to) {
+	size_t width = seats->width, height = seats->height;
+	line_buf *grid = seats->grid;
 	for (size_t y=0; y<height; y++) {
 		for (size_t x=0; x<width; x++) {
-			if (seats[y][x] == from) seats[y][x] = to;
+			if (grid[y][x] == from) grid[y][x] = to;
 		}
 	}
 }
 
-static int count_all(line_buf *seats, size_t width, size_t height, char val) {
+static int count_all(struct seats *seats, char val) {
 	int count = 0;
+	size_t width = seats->width, height = seats->height;
+	line_buf *grid = seats->grid;
 	for (size_t y=0; y<height; y++) {
 		for (size_t x=0; x<width; x++) {
-			if (seats[y][x] == val) count++;
+			if (grid[y][x] == val) count++;
 		}
 	}
 	return count;
 }
 
-static int apply_rules_part1(line_buf *seats, size_t width, size_t height) {
+static int apply_rules(struct seats *seats, count_adjacent count_func, int threshold) {
 	int changes = 0;
+	size_t width = seats->width, height = seats->height;
+	line_buf *grid = seats->grid;
 	for (size_t y=0; y<height; y++) {
 		for (size_t x=0; x<width; x++) {
-			if (seats[y][x] == '.') continue;
-			int adjacent = count_adjacent_part1(seats, width, height, x, y);
-			if (adjacent == 0 && seats[y][x] == 'L') {
-				seats[y][x] = '<';
+			if (grid[y][x] == '.') continue;
+			int adjacent = count_func(seats, x, y);
+			if (adjacent == 0 && grid[y][x] == 'L') {
+				grid[y][x] = '<';
 				changes++;
-			} else if (adjacent >= 4 && seats[y][x] == '#') {
-				seats[y][x] = '>';
-				changes++;
-			}
-		}
-	}
-	return changes;
-}
-
-static int apply_rules_part2(line_buf *seats, size_t width, size_t height) {
-	int changes = 0;
-	for (size_t y=0; y<height; y++) {
-		for (size_t x=0; x<width; x++) {
-			if (seats[y][x] == '.') continue;
-			int adjacent = count_adjacent_part2(seats, width, height, x, y);
-			if (adjacent == 0 && seats[y][x] == 'L') {
-				seats[y][x] = '<';
-				changes++;
-			} else if (adjacent >= 5 && seats[y][x] == '#') {
-				seats[y][x] = '>';
+			} else if (adjacent >= threshold && grid[y][x] == '#') {
+				grid[y][x] = '>';
 				changes++;
 			}
 		}
@@ -135,41 +134,41 @@ static int apply_rules_part2(line_buf *seats, size_t width, size_t height) {
 
 void day_result_compute(char *arg, day_result *res, FILE *in) {
 	struct array_data array;
-	line_buf *seats;
+	struct seats seats;
 	line_buf line;
-	array_init(&array, &seats, 1024);
+	array_init(&array, &seats.grid, 1024);
 
 	while (fgets(line, 1024, in) != NULL) {
 		size_t idx = array_add(&array);
-		memcpy(seats[idx], line, 1024);
+		memcpy(seats.grid[idx], line, 1024);
 	}
-	size_t width = strspn(seats[0], "L.");
-	size_t height = array_len(&array);
+	seats.width = strspn(seats.grid[0], "L.");
+	seats.height = array_len(&array);
 	array_add(&array);
 
 	// part 1
 	while (1) {
-		int changes = apply_rules_part1(seats, width, height);
-		swap_all(seats, width, height, '<', '#');
-		swap_all(seats, width, height, '>', 'L');
+		int changes = apply_rules(&seats, count_adjacent_part1, 4);
+		swap_all(&seats, '<', '#');
+		swap_all(&seats, '>', 'L');
 		if (changes == 0) {
-			res->part1 = count_all(seats, width, height, '#');
+			res->part1 = count_all(&seats, '#');
 			break;
 		}
 	}
-	swap_all(seats, width, height, '#', 'L');
+	swap_all(&seats, '#', 'L');
 
 	// part 2
 	while (1) {
-		int changes = apply_rules_part2(seats, width, height);
-		swap_all(seats, width, height, '<', '#');
-		swap_all(seats, width, height, '>', 'L');
+		int changes = apply_rules(&seats, count_adjacent_part2, 5);
+		swap_all(&seats, '<', '#');
+		swap_all(&seats, '>', 'L');
 		if (changes == 0) {
-			res->part2 = count_all(seats, width, height, '#');
+			res->part2 = count_all(&seats, '#');
 			break;
 		}
 	}
-	swap_all(seats, width, height, '#', 'L');
+	swap_all(&seats, '#', 'L');
 
 	array_free(&array);
 }
