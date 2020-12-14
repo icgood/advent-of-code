@@ -8,18 +8,6 @@ static size_t hash(const char *str, size_t i) {
         else return (hash(str, i-1) * 33) ^ str[i];
 }
 
-static struct hashmap_bucket *add_key(struct hashmap_bucket *head, const char *key, size_t key_len, size_t index) {
-	struct hashmap_bucket **iter = &head;
-	while (*iter != NULL) iter = &(*iter)->next;
-	struct hashmap_bucket *dest = *iter = malloc(sizeof (struct hashmap_bucket));
-	dest->next = NULL;
-	dest->index = index;
-	dest->key_len = key_len;
-	char *key_copy = dest->key = malloc(key_len);
-	memcpy(key_copy, key, key_len);
-	return head;
-}
-
 void hashmap_init(struct hashmap_data *data, void *array, size_t entry_size, size_t num_buckets) {
 	data->num_buckets = num_buckets;
 	data->buckets = malloc(num_buckets * sizeof (struct hashmap_bucket *));
@@ -38,10 +26,27 @@ void *hashmap_pointer(struct hashmap_data *data) {
 size_t hashmap_add(struct hashmap_data *data, const void *key, size_t key_len) {
 	size_t key_hash = hash(key, key_len-1);
 	size_t bucket_idx = key_hash % data->num_buckets;
-	size_t index = array_add(&data->array_data);
 	struct hashmap_bucket *head = data->buckets[bucket_idx];
-	data->buckets[bucket_idx] = add_key(head, key, key_len, index);
-	return index;
+	struct hashmap_bucket **iter = &head;
+	while (*iter != NULL) {
+		struct hashmap_bucket *cur = *iter;
+		if (cur->key_len == key_len && memcmp(cur->key, key, key_len) == 0) break;
+		iter = &cur->next;
+	}
+	struct hashmap_bucket *dest = *iter;
+	if (dest != NULL) {
+		return dest->index;
+	} else {
+		dest = *iter = malloc(sizeof (struct hashmap_bucket));
+		size_t index = array_add(&data->array_data);
+		data->buckets[bucket_idx] = head;
+		dest->next = NULL;
+		dest->index = index;
+		dest->key_len = key_len;
+		char *key_copy = dest->key = malloc(key_len);
+		memcpy(key_copy, key, key_len);
+		return index;
+	}
 }
 
 size_t *hashmap_lookup(struct hashmap_data *data, const void *key, size_t key_len) {

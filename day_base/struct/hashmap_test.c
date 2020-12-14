@@ -23,6 +23,11 @@ int main() {
 	hashmap_init(&data, &array, sizeof (test), 32);
 
 	assign(&data, "zero", 0);
+	assign(&data, "one", 0);
+	assign(&data, "two", 0);
+	assign(&data, "three", 0);
+
+	assign(&data, "zero", 0);
 	assign(&data, "one", 10);
 	assign(&data, "two", 20);
 	assign(&data, "three", 30);
@@ -33,6 +38,7 @@ int main() {
 	assign(&data, "eight", 80);
 	assign(&data, "nine", 90);
 
+	assert(10 == hashmap_len(&data));
 	assert(0 == strcmp("seven", array[7].key));
 	assert(70 == array[7].num);
 	assert(7 == *hashmap_lookup(&data, "seven", 5));

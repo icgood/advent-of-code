@@ -1,6 +1,4 @@
-def day_cc_solution(year, day,
-                    sol_file='sol.c', input_file='input', example_file='example',
-                    deps=None, visibility=None):
+def day_cc_solution(year, day, srcs=None, data=None, deps=None, visibility=None):
     day_lib_name = '{}_lib'.format(day)
     day_check_name = '{}_check'.format(day)
     day_leaks_name = '{}_leaks'.format(day)
@@ -8,7 +6,7 @@ def day_cc_solution(year, day,
 
     native.cc_library(
         name = day_lib_name,
-        srcs = [sol_file],
+        srcs = srcs or ['sol.c'],
         deps = ['//day_base:day_result'] + (deps or []),
         visibility = ['//visibility:private'],
     )
@@ -16,7 +14,7 @@ def day_cc_solution(year, day,
     native.cc_binary(
         name = day,
         deps = ['//day_base:day_run', ':' + day_lib_name],
-        data = [input_file, example_file],
+        data = data or ['example', 'input'],
         visibility = visibility,
     )
 
@@ -24,7 +22,7 @@ def day_cc_solution(year, day,
         name = day_check_name,
         args = [day_path],
         deps = ['//day_base:day_check', ':' + day_lib_name],
-        data = [input_file, example_file],
+        data = data or ['example', 'input'],
         visibility = ['//visibility:private'],
     )
 
