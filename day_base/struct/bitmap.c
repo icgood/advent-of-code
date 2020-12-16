@@ -4,7 +4,6 @@
 
 void bitmap_init(struct bitmap_data *data, size_t len) {
 	data->size = len / 8 + 1;
-	if (data->size == 0) data->size = 1;
 	data->bitmap_ptr = calloc(data->size, sizeof (unsigned char));
 }
 
