@@ -39,51 +39,51 @@ static int count_adjacent_part2(struct seats *seats, size_t x, size_t y) {
 	line_buf *grid = seats->grid;
 	// W 
 	if (x > 0) {
-		for (size_t x2=x-1; x2>=0; x2--) {
+		for (int x2=x-1; x2>=0; x2--) {
 			if (seat_occupied(grid[y][x2])) count++;
 			if (grid[y][x2] != '.') break;
 		}
 	}
 	// E
-	for (size_t x2=x+1; x2<width; x2++) {
+	for (int x2=x+1; x2<width; x2++) {
 		if (seat_occupied(grid[y][x2])) count++;
 		if (grid[y][x2] != '.') break;
 	}
 	// N
 	if (y > 0) {
-		for (size_t y2=y-1; y2>=0; y2--) {
+		for (int y2=y-1; y2>=0; y2--) {
 			if (seat_occupied(grid[y2][x])) count++;
 			if (grid[y2][x] != '.') break;
 		}
 	}
 	// S
-	for (size_t y2=y+1; y2<height; y2++) {
+	for (int y2=y+1; y2<height; y2++) {
 		if (seat_occupied(grid[y2][x])) count++;
 		if (grid[y2][x] != '.') break;
 	}
 	// NW
 	if (x > 0 && y > 0) {
-		for (size_t x2=x-1, y2=y-1; x2>=0 && y2>=0; x2--, y2--) {
+		for (int x2=x-1, y2=y-1; x2>=0 && y2>=0; x2--, y2--) {
 			if (seat_occupied(grid[y2][x2])) count++;
 			if (grid[y2][x2] != '.') break;
 		}
 	}
 	// NE
 	if (y > 0) {
-		for (size_t x2=x+1, y2=y-1; x2<width && y2>=0; x2++, y2--) {
+		for (int x2=x+1, y2=y-1; x2<width && y2>=0; x2++, y2--) {
 			if (seat_occupied(grid[y2][x2])) count++;
 			if (grid[y2][x2] != '.') break;
 		}
 	}
 	// SW
 	if (x > 0) {
-		for (size_t x2=x-1, y2=y+1; x2>=0 && y2<height; x2--, y2++) {
+		for (int  x2=x-1, y2=y+1; x2>=0 && y2<height; x2--, y2++) {
 			if (seat_occupied(grid[y2][x2])) count++;
 			if (grid[y2][x2] != '.') break;
 		}
 	}
 	// SE
-	for (size_t x2=x+1, y2=y+1; x2<width && y2<height; x2++, y2++) {
+	for (int x2=x+1, y2=y+1; x2<width && y2<height; x2++, y2++) {
 		if (seat_occupied(grid[y2][x2])) count++;
 		if (grid[y2][x2] != '.') break;
 	}
@@ -136,11 +136,11 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	struct array_data array;
 	struct seats seats;
 	line_buf line;
-	array_init(&array, &seats.grid, 1024);
+	array_init(&array, &seats.grid, sizeof (line_buf));
 
-	while (fgets(line, 1024, in) != NULL) {
+	while (fgets(line, sizeof (line_buf), in) != NULL) {
 		size_t idx = array_add(&array);
-		memcpy(seats.grid[idx], line, 1024);
+		memcpy(seats.grid[idx], line, sizeof (line_buf));
 	}
 	seats.width = strspn(seats.grid[0], "L.");
 	seats.height = array_len(&array);
