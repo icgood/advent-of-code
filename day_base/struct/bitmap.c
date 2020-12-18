@@ -33,19 +33,19 @@ size_t bitmap_max(struct bitmap_data *data) {
 
 void bitmap_set(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
-	size_t bit = 1 << (pos % 8);
+	unsigned char bit = 1 << (pos % 8);
 	data->bitmap_ptr[idx] |= bit;
 }
 
 void bitmap_unset(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
-	size_t bit = 1 << (pos % 8);
+	unsigned char bit = 1 << (pos % 8);
 	data->bitmap_ptr[idx] &= ~bit;
 }
 
 int bitmap_get(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
-	size_t bit = 1 << (pos % 8);
+	unsigned char bit = 1 << (pos % 8);
 	if (idx < data->size) return data->bitmap_ptr[idx] & bit ? 1 : 0;
 	else return 0;
 }
