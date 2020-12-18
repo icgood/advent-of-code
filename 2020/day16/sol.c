@@ -146,7 +146,7 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 
 void day_answers_provide(day_arguments *args, day_answers *answers) {
 	*answers = (day_answers) {
-		{71, 0},
-		{23954, 0},
+		{71, 1},
+		{23954, 453459307723},
 	};
 }
