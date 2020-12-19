@@ -1,8 +1,10 @@
 #include <stdio.h>
 
+typedef long long int day_result_num_t;
+
 typedef struct {
-	long long int part1;
-	long long int part2;
+	day_result_num_t part1;
+	day_result_num_t part2;
 } day_result;
 
 extern void day_result_compute(char *arg, day_result *res, FILE *in);
