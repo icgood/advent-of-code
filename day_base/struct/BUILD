@@ -56,22 +56,22 @@ sh_test(
     data = [":hashmap_test"],
 )
 
-# queue
+# deque
 cc_library(
-    name = "queue",
-    srcs = ["queue.c"],
-    hdrs = ["queue.h"],
+    name = "deque",
+    srcs = ["deque.c"],
+    hdrs = ["deque.h"],
     deps = [":array", ":bitmap"],
     visibility = ["//visibility:public"],
 )
 cc_test(
-    name = "queue_test",
-    srcs = ["queue_test.c"],
-    deps = [":queue"],
+    name = "deque_test",
+    srcs = ["deque_test.c"],
+    deps = [":deque"],
 )
 sh_test(
-    name = "queue_leaks",
+    name = "deque_leaks",
     srcs = ["//day_base:leaks-test.sh"],
-    args = ["$(location //day_base/struct:queue_test)"],
-    data = [":queue_test"],
+    args = ["$(location //day_base/struct:deque_test)"],
+    data = [":deque_test"],
 )
