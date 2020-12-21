@@ -31,6 +31,11 @@ size_t bitmap_max(struct bitmap_data *data) {
 	return max;
 }
 
+void bitmap_assign(struct bitmap_data *data, size_t pos, int val) {
+	if (val) bitmap_set(data, pos);
+	else bitmap_unset(data, pos);
+}
+
 void bitmap_set(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
 	unsigned char bit = 1 << (pos % 8);
@@ -45,9 +50,16 @@ void bitmap_unset(struct bitmap_data *data, size_t pos) {
 
 int bitmap_get(struct bitmap_data *data, size_t pos) {
 	size_t idx = pos / 8;
+	if (idx >= data->size) return 0;
 	unsigned char bit = 1 << (pos % 8);
-	if (idx < data->size) return data->bitmap_ptr[idx] & bit ? 1 : 0;
-	else return 0;
+	return data->bitmap_ptr[idx] & bit ? 1 : 0;
+}
+
+int bitmap_bitand(struct bitmap_data *data, size_t pos, struct bitmap_data *with) {
+	for (size_t i=0; i<bitmap_len(with); i++) {
+		if (bitmap_get(with, i) && !bitmap_get(data, pos + i)) return 0;
+	}
+	return 1;
 }
 
 void bitmap_resize(struct bitmap_data *data, size_t len) {

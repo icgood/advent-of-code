@@ -15,7 +15,9 @@ size_t bitmap_count(struct bitmap_data *data);
 size_t bitmap_max(struct bitmap_data *data);
 void bitmap_set(struct bitmap_data *data, size_t pos);
 void bitmap_unset(struct bitmap_data *data, size_t pos);
+void bitmap_assign(struct bitmap_data *data, size_t pos, int val);
 int bitmap_get(struct bitmap_data *data, size_t pos);
+int bitmap_bitand(struct bitmap_data *data, size_t pos, struct bitmap_data *with);
 void bitmap_resize(struct bitmap_data *data, size_t len);
 void bitmap_free(struct bitmap_data *data);
 
