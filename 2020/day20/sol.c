@@ -9,11 +9,20 @@
 #include "day_base/struct/bitmap.h"
 
 typedef unsigned int id_t;
-typedef unsigned int border_t;
 typedef enum { BLACK = '.', WHITE = '#' } color_t;
 typedef enum { TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3 } border_side_t;
 typedef enum { EDGE, TILE } neighbor_type_t;
-typedef unsigned char image_row_t;
+
+typedef struct {
+	struct bitmap_data bitmap;
+	unsigned char data[2];
+} border_t;
+
+typedef struct {
+	struct bitmap_data bitmap;
+	unsigned char data[1];
+} image_row_t;
+
 typedef image_row_t image_t[8];
 
 typedef struct {
@@ -45,27 +54,27 @@ const char sea_monster_grid[3][21] = {
 typedef struct bitmap_data sea_monster_t[3];
 
 static void parse_tile(tile_t *tile, char (*grid)[10]) {
-	for (size_t i=0; i<4; i++) {
-		tile->borders[i] = 0;
+	for (border_side_t side=0; side<4; side++) {
+		bitmap_init_static(&tile->borders[side].bitmap, 10);
 	}
 
 	for (size_t i=0; i<10; i++) {
-		if (grid[0][i] == WHITE) tile->borders[TOP] |= 1 << i;
+		if (grid[0][i] == WHITE) bitmap_set(&tile->borders[TOP].bitmap, i);
 	}
 	for (size_t i=0; i<10; i++) {
-		if (grid[i][9] == WHITE) tile->borders[RIGHT] |= 1 << i;
+		if (grid[i][9] == WHITE) bitmap_set(&tile->borders[RIGHT].bitmap, i);
 	}
 	for (size_t i=0; i<10; i++) {
-		if (grid[9][i] == WHITE) tile->borders[BOTTOM] |= 1 << (9 - i);
+		if (grid[9][i] == WHITE) bitmap_set(&tile->borders[BOTTOM].bitmap, 9 - i);
 	}
 	for (size_t i=0; i<10; i++) {
-		if (grid[i][0] == WHITE) tile->borders[LEFT] |= 1 << (9 - i);
+		if (grid[i][0] == WHITE) bitmap_set(&tile->borders[LEFT].bitmap, 9 - i);
 	}
 
 	for (size_t y=0; y<8; y++) {
-		tile->image[y] = 0;
+		bitmap_init_static(&tile->image[y].bitmap, 8);
 		for (size_t x=0; x<8; x++) {
-			if (grid[y+1][x+1] == WHITE) tile->image[y] |= 1 << x;
+			if (grid[y+1][x+1] == WHITE) bitmap_set(&tile->image[y].bitmap, x);
 		}
 	}
 }
@@ -82,44 +91,29 @@ static void parse_sea_monster(sea_monster_t *monster) {
 	}
 }
 
-static void flip_bits(unsigned int *value, size_t num_bits) {
-	unsigned int copy = *value;
-	int one, two, one_bit, two_bit;
-	size_t half = num_bits / 2;
-	for (size_t x=0; x<half; x++) {
-		one = 1 << x;
-		two = 1 << (num_bits - 1 - x);
-		one_bit = (copy & one) ? 1 : 0;
-		two_bit = (copy & two) ? 1 : 0;
-		if (one_bit && !two_bit) {
-			*value |= two;
-			*value &= ~one;
-		} else if (two_bit && !one_bit) {
-			*value |= one;
-			*value &= ~two;
-		}
+static void flip_bits(struct bitmap_data *bitmap, size_t num_bits) {
+	for (size_t left_pos=0; left_pos<num_bits/2; left_pos++) {
+		size_t right_pos = num_bits - left_pos - 1;
+		int left = bitmap_get(bitmap, left_pos);
+		int right = bitmap_get(bitmap, right_pos);
+		bitmap_assign(bitmap, left_pos, right);
+		bitmap_assign(bitmap, right_pos, left);
 	}
 }
 
 static border_t flip_border(border_t border) {
-	flip_bits(&border, 10);
+	flip_bits(&border.bitmap, 10);
 	return border;
-}
-
-static void flip_row(image_t *image, size_t y) {
-	unsigned int value = (*image)[y];
-	flip_bits(&value, 8);
-	(*image)[y] = value;
 }
 
 static void rotate_tile(tile_t *tile) {
 	image_t copy;
 	memcpy(&copy, &tile->image, sizeof (image_t));
-	memset(&tile->image, 0, sizeof (image_t));
+	for (size_t y=0; y<8; y++) bitmap_clear(&tile->image[y].bitmap);
 	for (size_t y=0; y<8; y++) {
 		for (size_t x=0; x<8; x++) {
-			if (copy[7-y] & (1 << x)) {
-				tile->image[x] |= 1 << y;
+			if (bitmap_get(&copy[7-y].bitmap, x)) {
+				bitmap_set(&tile->image[x].bitmap, y);
 			}
 		}
 	}
@@ -137,7 +131,7 @@ static void rotate_tile(tile_t *tile) {
 
 static void flip_tile_horizontal(tile_t *tile) {
 	for (size_t y=0; y<8; y++) {
-		flip_row(&tile->image, y);
+		flip_bits(&tile->image[y].bitmap, 8);
 	}
 	tile->borders[TOP] = flip_border(tile->borders[TOP]);
 	tile->borders[BOTTOM] = flip_border(tile->borders[BOTTOM]);
@@ -168,9 +162,9 @@ static void flip_tile_vertical(tile_t *tile) {
 static int get_neighbor(tile_t *tiles, size_t idx, border_side_t side, neighbor_t *neighbor, struct hashmap_data *hashmap, border_match_t *border_matches) {
 	tile_t *tile = &tiles[idx];
 	border_t border = tile->borders[side];
-	size_t *match_idx = hashmap_lookup(hashmap, &border, sizeof (border_t));
+	size_t *match_idx = hashmap_lookup(hashmap, bitmap_pointer(&border.bitmap), bitmap_sizeof(&border.bitmap));
 	border_t flipped_border = flip_border(border);
-	size_t *flipped_match_idx = hashmap_lookup(hashmap, &flipped_border, sizeof (border_t));
+	size_t *flipped_match_idx = hashmap_lookup(hashmap, bitmap_pointer(&flipped_border.bitmap), bitmap_sizeof(&flipped_border.bitmap));
 	if (match_idx != NULL && flipped_match_idx == NULL) {
 		border_match_t *match = &border_matches[*match_idx];
 		if (match->count == 1) {
@@ -222,17 +216,19 @@ static void reorient_neighbors(tile_t *tiles, size_t idx, struct bitmap_data *se
 		neighbor_t *neighbor = &tile->neighbors[side];
 		if (neighbor->type != TILE) continue;
 		border_t border = tile->borders[side];
+		border_t flipped_border = flip_border(border);
 		tile_t *neighbor_tile = &tiles[neighbor->idx];
 		border_side_t rotate, opposite = (side + 2) % 4;
 		for (rotate=0; rotate<4; rotate++) {
 			border_t neighbor_border = neighbor_tile->borders[opposite];
-			if (neighbor_border == border) {
+			if (bitmap_cmp(&neighbor_border.bitmap, &border.bitmap) == 0) {
 				if (opposite % 2 == 0) flip_tile_horizontal(neighbor_tile);
 				else flip_tile_vertical(neighbor_tile);
 				break;
-			} else if (neighbor_border == flip_border(border)) {
+			} else if (bitmap_cmp(&neighbor_border.bitmap, &flipped_border.bitmap) == 0) {
 				break;
 			}
+			
 			rotate_tile(neighbor_tile);
 		}
 		assert(rotate < 4);
@@ -256,12 +252,7 @@ static size_t count_monsters(sea_monster_t *monster, struct bitmap_data *board, 
 
 static void flip_board_horizontal(struct bitmap_data *board, size_t dim) {
 	for (size_t row=0; row<dim; row++) {
-		for (size_t col=0; col<dim/2; col++) {
-			int left = bitmap_get(&board[row], col);
-			int right = bitmap_get(&board[row], dim - col - 1);
-			bitmap_assign(&board[row], col, right);
-			bitmap_assign(&board[row], dim - col - 1, left);
-		}
+		flip_bits(&board[row], dim);
 	}
 }
 
@@ -322,9 +313,9 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	border_match_t *border_matches;
 	hashmap_init(&hashmap, &border_matches, sizeof (border_match_t), tiles_len * 4);
 	for (size_t idx=0; idx<tiles_len; idx++) {
-		for (size_t i=0; i<4; i++) {
-			border_t *border = &tiles[idx].borders[i];
-			size_t match_idx = hashmap_add(&hashmap, border, sizeof (border_t));
+		for (border_side_t side=0; side<4; side++) {
+			border_t border = tiles[idx].borders[side];
+			size_t match_idx = hashmap_add(&hashmap, bitmap_pointer(&border.bitmap), bitmap_sizeof(&border.bitmap));
 			border_match_t *match = &border_matches[match_idx];
 			match->owners[match->count++] = idx;
 		}
@@ -351,7 +342,7 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 		for (size_t board_x=0; board_x<board_dim/8; board_x++) {
 			for (size_t y=0; y<8; y++) {
 				for (size_t x=0; x<8; x++) {
-					if (cur_tile->image[y] & (1 << x)) {
+					if (bitmap_get(&cur_tile->image[y].bitmap, x)) {
 						bitmap_set(&board[(board_y * 8) + y], (board_x * 8) + x);
 					}
 				}

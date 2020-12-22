@@ -4,16 +4,18 @@
 #include "bitmap.h"
 
 typedef struct {
-	uint64_t num;
-	uint8_t letter;
-} test;
+	struct bitmap_data bitmap;
+	unsigned char data[2];
+} static_t;
 
 int main() {
 	struct bitmap_data data;
 	struct bitmap_data mask;
+	static_t data2;
 
 	bitmap_init(&data, 5);
 	bitmap_init(&mask, 7);
+	bitmap_init_static(&data2.bitmap, 10);
 
 	bitmap_set(&data, 3);
 	bitmap_set(&data, 7);
@@ -35,6 +37,14 @@ int main() {
 	assert(1 == bitmap_get(&data, 7));
 	assert(0 == bitmap_get(&data, 8));
 	assert(1 == bitmap_get(&data, 9));
+
+	assert(bitmap_cmp(&data, &data2.bitmap) != 0);
+	bitmap_set(&data2.bitmap, 3);
+	assert(bitmap_cmp(&data, &data2.bitmap) != 0);
+	bitmap_set(&data2.bitmap, 7);
+	assert(bitmap_cmp(&data, &data2.bitmap) != 0);
+	bitmap_set(&data2.bitmap, 9);
+	assert(bitmap_cmp(&data, &data2.bitmap) == 0);
 
 	bitmap_set(&mask, 0);
 	bitmap_set(&mask, 6);
