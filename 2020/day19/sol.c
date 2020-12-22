@@ -122,8 +122,8 @@ static void compile_rules(rule_t *rules) {
 				strcat(rule->re, ")");
 			}
 			size_t rule_len = strlen(rule->re);
-			char *final_re = malloc(rule_len + 32);
-			snprintf(final_re, rule_len+32, "^%s$", rule->re);
+			char *final_re = malloc(rule_len + 8);
+			snprintf(final_re, rule_len+8, "^%s", rule->re);
 			assert(regcomp(&rule->compiled, final_re, REG_EXTENDED) == 0);
 			free(final_re);
 		}
@@ -172,45 +172,32 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	parse_rules(rule_lines, rules, rules_len);
 	compile_rules(rules);
 	rule_t *first_rule = &rules[0];
+	regmatch_t match;
 
 	// part 1
 	for (size_t i=0; i<messages_len; i++) {
-		if (regexec(&first_rule->compiled, message_lines[i], 0, NULL, REG_NOSUB) == 0) {
-			res->part1++;
+		if (regexec(&first_rule->compiled, message_lines[i], 1, &match, 0) == 0) {
+			if (match.rm_so == 0 && match.rm_eo == strlen(message_lines[i])) {
+				res->part1++;
+			}
 		}
 	}
 
 	// part 2
-	regmatch_t match;
-	regex_t fortytwo_re, thirtyone_re;
-	char *fortytwo_re_str = malloc(strlen(rules[42].re) + 2);
-	fortytwo_re_str[0] = '\0';
-	char *thirtyone_re_str = malloc(strlen(rules[31].re) + 2);
-	thirtyone_re_str[0] = '\0';
-	strcat(fortytwo_re_str, "^");
-	strcat(fortytwo_re_str, rules[42].re);
-	strcat(thirtyone_re_str, "^");
-	strcat(thirtyone_re_str, rules[31].re);
-	assert(regcomp(&fortytwo_re, fortytwo_re_str, REG_EXTENDED) == 0);
-	assert(regcomp(&thirtyone_re, thirtyone_re_str, REG_EXTENDED) == 0);
 	for (size_t i=0; i<messages_len; i++) {
 		char *ptr = message_lines[i];
 		size_t num_fortytwo = 0, num_thirtyone = 0;
-		while (regexec(&fortytwo_re, ptr, 1, &match, 0) == 0) {
+		while (regexec(&rules[42].compiled, ptr, 1, &match, 0) == 0) {
 			num_fortytwo++;
 			ptr += match.rm_eo;
 		}
-		while (regexec(&thirtyone_re, ptr, 1, &match, 0) == 0) {
+		while (regexec(&rules[31].compiled, ptr, 1, &match, 0) == 0) {
 			num_thirtyone++;
 			ptr += match.rm_eo;
 		}
 		if (*ptr != '\0') continue;
 		if (num_fortytwo > num_thirtyone && num_thirtyone > 0) res->part2++;
 	}
-	free(fortytwo_re_str);
-	free(thirtyone_re_str);
-	regfree(&fortytwo_re);
-	regfree(&thirtyone_re);
 
 	free_rules(rules);
 	array_free(&array_rule_lines);
