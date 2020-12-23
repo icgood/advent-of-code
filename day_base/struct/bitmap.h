@@ -4,14 +4,13 @@
 #include <stdlib.h>
 
 typedef enum { BITMAP_DYNAMIC, BITMAP_STATIC } bitmap_type_t;
+typedef struct bitmap_data bitmap_t;
 
 struct bitmap_data {
 	bitmap_type_t type;
 	unsigned char *ptr;
 	size_t size;
 };
-
-typedef struct bitmap_data bitmap_t;
 
 void bitmap_init(struct bitmap_data *data, size_t bits);
 void bitmap_init_static(struct bitmap_data *data, size_t bits);

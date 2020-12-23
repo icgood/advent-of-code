@@ -6,6 +6,7 @@
 #include "bitmap.h"
 
 typedef enum { DEQUE_FRONT, DEQUE_BACK } deque_end_t;
+typedef struct deque_data deque_t;
 
 struct deque_data {
 	struct deque_node *head;
@@ -13,12 +14,6 @@ struct deque_data {
 	size_t len;
 	struct array_data array_data;
 	struct bitmap_data bitmap;
-};
-
-struct deque_node {
-	size_t index;
-	struct deque_node *prev;
-	struct deque_node *next;
 };
 
 void deque_init(struct deque_data *data, void *array, size_t entry_size);

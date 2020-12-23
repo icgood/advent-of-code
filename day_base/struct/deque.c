@@ -4,6 +4,12 @@
 #include "bitmap.h"
 #include "deque.h"
 
+struct deque_node {
+	size_t index;
+	struct deque_node *prev;
+	struct deque_node *next;
+};
+
 void deque_init(struct deque_data *data, void *array, size_t entry_size) {
 	data->head = NULL;
 	data->tail = NULL;

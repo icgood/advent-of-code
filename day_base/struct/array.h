@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+typedef struct array_data array_t;
+
 struct array_data {
 	size_t len;
 	size_t size;

@@ -4,6 +4,11 @@
 #include "array.h"
 #include "hashmap.h"
 
+struct hashmap_bucket {
+	size_t index;
+	struct hashmap_bucket *next;
+};
+
 static size_t hash(const char *str, size_t i) {
         if (i == 0) return str[0];
         else return (hash(str, i-1) * 33) ^ str[i];

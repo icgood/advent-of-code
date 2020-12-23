@@ -4,15 +4,14 @@
 #include <stdlib.h>
 #include "array.h"
 
+typedef struct hashmap_key hashmap_key_t;
+typedef struct hashmap_data hashmap_t;
+typedef void (*hashmap_foreach_t)(struct hashmap_key *key, void *value, size_t idx, void *arg);
+
 struct hashmap_key {
 	void *buf;
 	size_t len;
 	size_t hash;
-};
-
-struct hashmap_bucket {
-	size_t index;
-	struct hashmap_bucket *next;
 };
 
 struct hashmap_data {
@@ -23,8 +22,6 @@ struct hashmap_data {
 	struct array_data value_data;
 	struct hashmap_key *keys;
 };
-
-typedef void (*hashmap_foreach_t)(struct hashmap_key *key, void *value, size_t idx, void *arg);
 
 void hashmap_init(struct hashmap_data *data, void *array, size_t entry_size, size_t num_buckets);
 size_t hashmap_len(struct hashmap_data *data);
