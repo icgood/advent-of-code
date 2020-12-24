@@ -30,7 +30,7 @@ static size_t first_empty(struct bitmap_data *bitmap) {
 	for (size_t i=0; i<bitmap_len(bitmap); i++) {
 		if (!bitmap_get(bitmap, i)) return i;
 	}
-	assert(0);
+	assert(!"bitmap is full");
 }
 
 size_t deque_add(struct deque_data *data, deque_end_t end) {

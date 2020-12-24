@@ -24,7 +24,7 @@ typedef struct {
 	coord_t max;
 } bound_t;
 
-int count_neighbors(struct hashmap_data *hashmap, status_t *coords, coord_t *coord, int with_w) {
+static int count_neighbors(struct hashmap_data *hashmap, status_t *coords, coord_t *coord, int with_w) {
 	int x = coord->x, y = coord->y, z = coord->z, w = coord->w;
 	int count = 0;
 	for (int x2=x-1; x2<=x+1; x2++) {
@@ -46,7 +46,7 @@ int count_neighbors(struct hashmap_data *hashmap, status_t *coords, coord_t *coo
 	return count;
 }
 
-void cycle_coords(struct hashmap_data *hashmap, status_t **coords, bound_t *bound, int with_w) {
+static void cycle_coords(struct hashmap_data *hashmap, status_t **coords, bound_t *bound, int with_w) {
 	for (int x=bound->min.x-1; x<=bound->max.x+1; x++) {
 		for (int y=bound->min.y-1; y<=bound->max.y+1; y++) {
 			for (int z=bound->min.z-1; z<=bound->max.z+1; z++) {
@@ -69,13 +69,13 @@ void cycle_coords(struct hashmap_data *hashmap, status_t **coords, bound_t *boun
 	}
 }
 
-void finalize_changes(struct hashmap_key *key, void *value, size_t idx, void *arg) {
+static void finalize_changes(struct hashmap_key *key, void *value, size_t idx, void *arg) {
 	status_t *status = (status_t *) value;
 	if (*status == ACTIVE2) *status = ACTIVE;
 	else if (*status == INACTIVE2) *status = INACTIVE;
 }
 
-void expand_bound(struct hashmap_key *key, void *value, size_t idx, void *arg) {
+static void expand_bound(struct hashmap_key *key, void *value, size_t idx, void *arg) {
 	status_t status = *(status_t *) value;
 	if (status == ACTIVE) {
 		coord_t *coord = (coord_t *) key->buf;
@@ -91,13 +91,13 @@ void expand_bound(struct hashmap_key *key, void *value, size_t idx, void *arg) {
 	}
 }
 
-void count_active(struct hashmap_key *key, void *value, size_t idx, void *arg) {
+static void count_active(struct hashmap_key *key, void *value, size_t idx, void *arg) {
 	status_t status = *(status_t *) value;
 	day_result_num_t *num = (day_result_num_t *) arg;
 	if (status == ACTIVE) (*num)++;
 }
 
-void parse_lines(char **lines, struct hashmap_data *hashmap, status_t **coords, bound_t *bound, size_t num_buckets) {
+static void parse_lines(char **lines, struct hashmap_data *hashmap, status_t **coords, bound_t *bound, size_t num_buckets) {
 	hashmap_init(hashmap, coords, sizeof (status_t), num_buckets);
 	size_t y = 0;
 	for (size_t i=0; i<32; i++) {

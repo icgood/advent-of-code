@@ -16,6 +16,7 @@ void array_init(struct array_data *data, void *array_ptr, size_t entry_size);
 size_t array_len(struct array_data *data);
 void *array_pointer(struct array_data *data);
 size_t array_add(struct array_data *data);
+void array_realloc(struct array_data *data, size_t size_hint);
 void array_resize(struct array_data *data, size_t len);
 void array_free(struct array_data *data);
 

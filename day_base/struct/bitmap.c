@@ -29,7 +29,8 @@ size_t bitmap_sizeof(struct bitmap_data *data) {
 
 unsigned char *bitmap_pointer(struct bitmap_data *data) {
 	if (data->type == BITMAP_DYNAMIC) return data->ptr;
-	else return (unsigned char *) (data + 1);
+	else if (data->type == BITMAP_STATIC) return data->buf;
+	else assert(!"invalid bitmap type");
 }
 
 size_t bitmap_count(struct bitmap_data *data) {

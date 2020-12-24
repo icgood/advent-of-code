@@ -8,8 +8,9 @@ typedef struct bitmap_data bitmap_t;
 
 struct bitmap_data {
 	bitmap_type_t type;
-	unsigned char *ptr;
 	size_t size;
+	unsigned char *ptr;
+	unsigned char buf[];
 };
 
 void bitmap_init(struct bitmap_data *data, size_t bits);

@@ -53,7 +53,7 @@ static void assign_all(bitmask_t *bitmask, number_t address, number_t value, str
 	}
 	address = apply_bitmask(bitmask, address, '*');
 	size_t idx = hashmap_add(hashmap, &address, sizeof (number_t));
-	number_t *memory = (number_t *) hashmap_pointer(hashmap);
+	number_t *memory = hashmap_pointer(hashmap);
 	memory[idx] = value;
 }
 
@@ -104,7 +104,7 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	}
 
 	// part 2
-	hashmap_init(&hashmap, &memory, sizeof (number_t), 1024);
+	hashmap_init(&hashmap, &memory, sizeof (number_t), 4096);
 	for (size_t i=0; i<array_len(&array); i++) {
 		assignment_t *curr = &assignments[i];
 		assign_all(&curr->bitmask, curr->address, curr->value, &hashmap, 0);
