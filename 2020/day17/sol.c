@@ -7,9 +7,7 @@
 
 typedef enum {
 	ACTIVE = '#',
-	ACTIVE2 = '@',
 	INACTIVE = '.',
-	INACTIVE2 = ',',
 } status_t;
 
 typedef struct {
@@ -24,7 +22,11 @@ typedef struct {
 	coord_t max;
 } bound_t;
 
-static int count_neighbors(struct hashmap_data *hashmap, status_t *coords, coord_t *coord, int with_w) {
+typedef struct {
+	status_t status, new_status;
+} value_t;
+
+static int count_neighbors(struct hashmap_data *hashmap, value_t *coords, coord_t *coord, int with_w) {
 	int x = coord->x, y = coord->y, z = coord->z, w = coord->w;
 	int count = 0;
 	for (int x2=x-1; x2<=x+1; x2++) {
@@ -36,8 +38,8 @@ static int count_neighbors(struct hashmap_data *hashmap, status_t *coords, coord
 					coord_t coord2 = {x2, y2, z2, w2};
 					size_t *idx = hashmap_lookup(hashmap, &coord2, sizeof (coord_t));
 					if (idx != NULL) {
-						status_t status = coords[*idx];
-						if (status == ACTIVE || status == INACTIVE2) count++;
+						status_t status = coords[*idx].status;
+						if (status == ACTIVE) count++;
 					}
 				}
 			}
@@ -46,7 +48,7 @@ static int count_neighbors(struct hashmap_data *hashmap, status_t *coords, coord
 	return count;
 }
 
-static void cycle_coords(struct hashmap_data *hashmap, status_t **coords, bound_t *bound, int with_w) {
+static void cycle_coords(struct hashmap_data *hashmap, value_t **coords, bound_t *bound, int with_w) {
 	for (int x=bound->min.x-1; x<=bound->max.x+1; x++) {
 		for (int y=bound->min.y-1; y<=bound->max.y+1; y++) {
 			for (int z=bound->min.z-1; z<=bound->max.z+1; z++) {
@@ -55,13 +57,19 @@ static void cycle_coords(struct hashmap_data *hashmap, status_t **coords, bound_
 					coord_t coord = {x, y, z, w};
 					int count = count_neighbors(hashmap, *coords, &coord, with_w);
 					size_t *idx = hashmap_lookup(hashmap, &coord, sizeof (coord_t));
-					if (idx == NULL || (*coords)[*idx] == INACTIVE) {
+					value_t *value = idx != NULL ? &(*coords)[*idx] : NULL;
+					status_t status = value != NULL ? value->status : INACTIVE;
+					if (status == INACTIVE) {
 						if (count == 3) {
-							size_t new_idx = hashmap_add(hashmap, &coord, sizeof (coord_t));
-							(*coords)[new_idx] = ACTIVE2;
+							if (value == NULL) {
+								size_t new_idx = hashmap_add(hashmap, &coord, sizeof (coord_t));
+								value = &(*coords)[new_idx];
+								value->status = INACTIVE;
+							}
+							value->new_status = ACTIVE;
 						}
 					} else if (count != 2 && count != 3) {
-						(*coords)[*idx] = INACTIVE2;
+						value->new_status = INACTIVE;
 					}
 				}
 			}
@@ -69,15 +77,14 @@ static void cycle_coords(struct hashmap_data *hashmap, status_t **coords, bound_
 	}
 }
 
-static void finalize_changes(struct hashmap_key *key, void *value, size_t idx, void *arg) {
-	status_t *status = (status_t *) value;
-	if (*status == ACTIVE2) *status = ACTIVE;
-	else if (*status == INACTIVE2) *status = INACTIVE;
+static void finalize_changes(struct hashmap_key *key, void *value_ptr, size_t idx, void *arg) {
+	value_t *value = (value_t *) value_ptr;
+	value->status = value->new_status;
 }
 
-static void expand_bound(struct hashmap_key *key, void *value, size_t idx, void *arg) {
-	status_t status = *(status_t *) value;
-	if (status == ACTIVE) {
+static void expand_bound(struct hashmap_key *key, void *value_ptr, size_t idx, void *arg) {
+	value_t *value = (value_t *) value_ptr;
+	if (value->status == ACTIVE) {
 		coord_t *coord = (coord_t *) key->buf;
 		bound_t *bound = (bound_t *) arg;
 		if (coord->x < bound->min.x) bound->min.x = coord->x;
@@ -91,35 +98,34 @@ static void expand_bound(struct hashmap_key *key, void *value, size_t idx, void 
 	}
 }
 
-static void count_active(struct hashmap_key *key, void *value, size_t idx, void *arg) {
-	status_t status = *(status_t *) value;
+static void count_active(struct hashmap_key *key, void *value_ptr, size_t idx, void *arg) {
+	value_t *value = (value_t *) value_ptr;
 	day_result_num_t *num = (day_result_num_t *) arg;
-	if (status == ACTIVE) (*num)++;
+	if (value->status == ACTIVE) (*num)++;
 }
 
-static void parse_lines(char **lines, struct hashmap_data *hashmap, status_t **coords, bound_t *bound, size_t num_buckets) {
-	hashmap_init(hashmap, coords, sizeof (status_t), num_buckets);
-	size_t y = 0;
-	for (size_t i=0; i<32; i++) {
-		char *line = lines[i];
+static void parse_lines(char **lines, struct hashmap_data *hashmap, value_t **coords, bound_t *bound, size_t num_buckets) {
+	hashmap_init(hashmap, coords, sizeof (value_t), num_buckets);
+	for (size_t y=0; y<32; y++) {
+		char *line = lines[y];
 		size_t len = strspn(line, ".#");
 		for (size_t x=0; x<len; x++) {
 			coord_t coord = {x, y, 0, 0};
 			size_t idx = hashmap_add(hashmap, &coord, sizeof (coord_t));
-			(*coords)[idx] = line[x] == ACTIVE ? ACTIVE : INACTIVE;
+			value_t *value = &(*coords)[idx];
+			value->status = value->new_status = line[x] == ACTIVE ? ACTIVE : INACTIVE;
 		}
-		y++;
 	}
 	*bound = (bound_t) {
 		{0, 0, 0, 0},
-		{y-1, y-1, 0, 0},
+		{0, 0, 0, 0},
 	};
 }
 
 void day_result_compute(char *arg, day_result *res, FILE *in) {
 	char *lines[32];
 	struct hashmap_data hashmap;
-	status_t *coords;
+	value_t *coords;
 	bound_t bound;
 
 	for (size_t i=0; i<32; i++) {
@@ -133,9 +139,9 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	// part 1
 	parse_lines(lines, &hashmap, &coords, &bound, 256);
 	for (int i=0; i<6; i++) {
+		hashmap_foreach(&hashmap, expand_bound, &bound);
 		cycle_coords(&hashmap, &coords, &bound, 0);
 		hashmap_foreach(&hashmap, finalize_changes, NULL);
-		hashmap_foreach(&hashmap, expand_bound, &bound);
 	}
 	hashmap_foreach(&hashmap, count_active, &res->part1);
 	hashmap_free(&hashmap);
@@ -143,9 +149,9 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	// part 2
 	parse_lines(lines, &hashmap, &coords, &bound, 2048);
 	for (int i=0; i<6; i++) {
+		hashmap_foreach(&hashmap, expand_bound, &bound);
 		cycle_coords(&hashmap, &coords, &bound, 1);
 		hashmap_foreach(&hashmap, finalize_changes, NULL);
-		hashmap_foreach(&hashmap, expand_bound, &bound);
 	}
 	hashmap_foreach(&hashmap, count_active, &res->part2);
 	hashmap_free(&hashmap);

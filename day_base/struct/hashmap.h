@@ -9,6 +9,7 @@ typedef struct hashmap_data hashmap_t;
 typedef void (*hashmap_foreach_t)(struct hashmap_key *key, void *value, size_t idx, void *arg);
 
 struct hashmap_key {
+	struct hashmap_data *hashmap;
 	void *buf;
 	size_t len;
 	size_t hash;

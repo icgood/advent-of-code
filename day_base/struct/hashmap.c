@@ -79,6 +79,7 @@ size_t hashmap_add(struct hashmap_data *data, const void *key, size_t key_len) {
 		dest->index = index;
 		dest->key_len = key_len;
 		memcpy(dest->key, key, key_len);
+		key_obj->hashmap = data;
 		key_obj->hash = key_hash;
 		key_obj->buf = dest->key;
 		key_obj->len = key_len;
