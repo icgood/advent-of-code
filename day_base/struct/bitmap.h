@@ -10,7 +10,7 @@ struct bitmap_data {
 	bitmap_type_t type;
 	size_t size;
 	unsigned char *ptr;
-	unsigned char buf[];
+	unsigned char buf[0];
 };
 
 void bitmap_init(struct bitmap_data *data, size_t bits);
