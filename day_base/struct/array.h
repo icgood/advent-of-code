@@ -13,7 +13,9 @@ struct array_data {
 };
 
 void array_init(struct array_data *data, void *array_ptr, size_t entry_size);
+void array_move(struct array_data *data, struct array_data *dest_data, void *dest_array_ptr);
 size_t array_len(struct array_data *data);
+size_t array_sizeof(struct array_data *data);
 void *array_pointer(struct array_data *data);
 size_t array_add(struct array_data *data);
 void array_realloc(struct array_data *data, size_t size_hint);

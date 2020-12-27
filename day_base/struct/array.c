@@ -10,8 +10,18 @@ void array_init(struct array_data *data, void *array_ptr, size_t entry_size) {
 	if (entry_size > 0) *data->array_ptr = calloc(data->size, entry_size);
 }
 
+void array_move(struct array_data *data, struct array_data *dest_data, void *dest_array_ptr) {
+	*dest_data = *data;
+	dest_data->array_ptr = (void **) dest_array_ptr;
+	if (data->entry_size > 0) *dest_data->array_ptr = array_pointer(data);
+}
+
 size_t array_len(struct array_data *data) {
 	return data->len;
+}
+
+size_t array_sizeof(struct array_data *data) {
+	return data->size * data->entry_size;
 }
 
 void *array_pointer(struct array_data *data) {

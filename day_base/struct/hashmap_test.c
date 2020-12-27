@@ -69,36 +69,88 @@ static void test_basic_operations() {
 	hashmap_free(&data);
 }
 
-static void test_join_intersect() {
-	struct hashmap_data joined, one, two;
-	number_t *val_joined, *val_one, *val_two;
+static void test_update_intersect() {
+	struct hashmap_data lhs, rhs;
+	number_t *val_lhs, *val_rhs;
 
-	hashmap_init(&joined, &val_joined, sizeof (int), 32);
-	hashmap_init(&one, &val_one, sizeof (int), 32);
-	hashmap_init(&two, &val_two, sizeof (int), 32);
+	hashmap_init(&lhs, &val_lhs, sizeof (int), 16);
+	hashmap_init(&rhs, &val_rhs, sizeof (int), 32);
 
-	assign(&one, "one", 1);
-	assign(&one, "two", 2);
-	assign(&one, "three", 3);
-	assign(&two, "two", 20);
-	assign(&two, "three", 30);
-	assign(&two, "four", 40);
+	assign(&lhs, "one", 1);
+	assign(&lhs, "two", 2);
+	assign(&lhs, "three", 3);
+	assign(&rhs, "two", 20);
+	assign(&rhs, "three", 30);
+	assign(&rhs, "four", 40);
 
-	hashmap_join(&joined, HASHMAP_INTERSECT, &one, &two);
-	assert(2 == hashmap_len(&joined));
+	hashmap_update(&lhs, HASHMAP_INTERSECT, &rhs);
+	assert(2 == hashmap_len(&lhs));
 
-	assert(NULL == hashmap_lookup(&joined, "one", 3));
-	assert(20 == val_joined[*hashmap_lookup(&joined, "two", 3)]);
-	assert(30 == val_joined[*hashmap_lookup(&joined, "three", 5)]);
-	assert(NULL == hashmap_lookup(&joined, "four", 4));
+	assert(NULL == hashmap_lookup(&lhs, "one", 3));
+	assert(20 == val_lhs[*hashmap_lookup(&lhs, "two", 3)]);
+	assert(30 == val_lhs[*hashmap_lookup(&lhs, "three", 5)]);
+	assert(NULL == hashmap_lookup(&lhs, "four", 4));
 
-	hashmap_free(&joined);
-	hashmap_free(&one);
-	hashmap_free(&two);
+	hashmap_free(&lhs);
+	hashmap_free(&rhs);
+}
+
+static void test_update_union() {
+	struct hashmap_data lhs, rhs;
+	number_t *val_lhs, *val_rhs;
+
+	hashmap_init(&lhs, &val_lhs, sizeof (int), 16);
+	hashmap_init(&rhs, &val_rhs, sizeof (int), 32);
+
+	assign(&lhs, "one", 1);
+	assign(&lhs, "two", 2);
+	assign(&lhs, "three", 3);
+	assign(&rhs, "two", 20);
+	assign(&rhs, "three", 30);
+	assign(&rhs, "four", 40);
+
+	hashmap_update(&lhs, HASHMAP_UNION, &rhs);
+	assert(4 == hashmap_len(&lhs));
+
+	assert(1 == val_lhs[*hashmap_lookup(&lhs, "one", 3)]);
+	assert(20 == val_lhs[*hashmap_lookup(&lhs, "two", 3)]);
+	assert(30 == val_lhs[*hashmap_lookup(&lhs, "three", 5)]);
+	assert(40 == val_lhs[*hashmap_lookup(&lhs, "four", 4)]);
+
+	hashmap_free(&lhs);
+	hashmap_free(&rhs);
+}
+
+static void test_update_difference() {
+	struct hashmap_data lhs, rhs;
+	number_t *val_lhs, *val_rhs;
+
+	hashmap_init(&lhs, &val_lhs, sizeof (int), 16);
+	hashmap_init(&rhs, &val_rhs, sizeof (int), 32);
+
+	assign(&lhs, "one", 1);
+	assign(&lhs, "two", 2);
+	assign(&lhs, "three", 3);
+	assign(&rhs, "two", 20);
+	assign(&rhs, "three", 30);
+	assign(&rhs, "four", 40);
+
+	hashmap_update(&lhs, HASHMAP_DIFFERENCE, &rhs);
+	assert(1 == hashmap_len(&lhs));
+
+	assert(1 == val_lhs[*hashmap_lookup(&lhs, "one", 3)]);
+	assert(NULL == hashmap_lookup(&lhs, "two", 3));
+	assert(NULL == hashmap_lookup(&lhs, "three", 5));
+	assert(NULL == hashmap_lookup(&lhs, "four", 4));
+
+	hashmap_free(&lhs);
+	hashmap_free(&rhs);
 }
 
 int main() {
 	test_basic_operations();
-	test_join_intersect();
+	test_update_intersect();
+	test_update_union();
+	test_update_difference();
 	return 0;
 }

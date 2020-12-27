@@ -19,6 +19,11 @@ void deque_init(struct deque_data *data, void *array, size_t entry_size) {
 	bitmap_init(&data->bitmap, 0);
 }
 
+void deque_move(struct deque_data *data, struct deque_data *dest_data, void *dest_array) {
+	*dest_data = *data;
+	array_move(&data->array_data, &dest_data->array_data, dest_array);
+}
+
 size_t deque_len(struct deque_data *data) {
 	return data->len;
 }

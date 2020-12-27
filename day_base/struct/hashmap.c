@@ -37,6 +37,15 @@ void hashmap_init(struct hashmap_data *data, void *array, size_t entry_size, siz
 	array_realloc(&data->value_data, size_hint);
 }
 
+void hashmap_move(struct hashmap_data *data, struct hashmap_data *dest_data, void *dest_array) {
+	*dest_data = *data;
+	array_move(&data->key_data, &dest_data->key_data, &dest_data->keys);
+	array_move(&data->value_data, &dest_data->value_data, dest_array);
+	for (size_t i=0; i<data->num_buckets; i++) {
+		deque_move(&data->buckets[i].deque, &dest_data->buckets[i].deque, &dest_data->buckets[i].indexes);
+	}
+}
+
 size_t hashmap_len(struct hashmap_data *data) {
 	return array_len(&data->key_data);
 }
@@ -91,26 +100,62 @@ size_t *hashmap_lookup(struct hashmap_data *data, const void *key, size_t key_le
 	return NULL;
 }
 
-void hashmap_join(struct hashmap_data *data, hashmap_join_t join, struct hashmap_data *one, struct hashmap_data *two) {
-	void *values = hashmap_pointer(data);
+void hashmap_update(struct hashmap_data *data, hashmap_op_t op, struct hashmap_data *rhs) {
 	size_t entry_size = data->entry_size;
-	assert(one->entry_size == entry_size && two->entry_size == entry_size);
-	if (join == HASHMAP_INTERSECT) {
-		struct hashmap_key *one_keys = one->keys;
-		size_t one_len = array_len(&one->key_data);
-		void *two_values = hashmap_pointer(two);
-		for (size_t i=0; i<one_len; i++) {
-			struct hashmap_key *key = &one_keys[i];
-			size_t *two_idx = hashmap_lookup(two, key->buf, key->len);
-			if (two_idx != NULL) {
-				void *two_value = two_values + (*two_idx * entry_size);
+	assert(entry_size == rhs->entry_size);
+	struct hashmap_data lhs;
+	void *lhs_array, **values = data->value_data.array_ptr;
+	hashmap_move(data, &lhs, &lhs_array);
+	hashmap_init(data, values, entry_size, data->num_buckets);
+	struct hashmap_key *lhs_keys = lhs.keys, *rhs_keys = rhs->keys;
+	size_t lhs_len = array_len(&lhs.key_data), rhs_len = array_len(&rhs->key_data);
+	void *lhs_ptr = entry_size > 0 ? hashmap_pointer(&lhs) : NULL;
+	void *rhs_ptr = entry_size > 0 ? hashmap_pointer(rhs) : NULL;
+	if (op == HASHMAP_UNION) {
+		for (size_t i=0; i<lhs_len; i++) {
+			struct hashmap_key *key = &lhs_keys[i];
+			size_t idx = hashmap_add(data, key->buf, key->len);
+			if (entry_size > 0) {
+				void *lhs_value = lhs_ptr + (i * entry_size);
+				memcpy(*values + (idx * entry_size), lhs_value, entry_size);
+			}
+		}
+		for (size_t i=0; i<rhs_len; i++) {
+			struct hashmap_key *key = &rhs_keys[i];
+			size_t idx = hashmap_add(data, key->buf, key->len);
+			if (entry_size > 0) {
+				void *rhs_value = rhs_ptr + (i * entry_size);
+				memcpy(*values + (idx * entry_size), rhs_value, entry_size);
+			}
+		}
+	} else if (op == HASHMAP_INTERSECT) {
+		for (size_t i=0; i<rhs_len; i++) {
+			struct hashmap_key *key = &rhs_keys[i];
+			size_t *lhs_idx = hashmap_lookup(&lhs, key->buf, key->len);
+			if (lhs_idx != NULL) {
 				size_t idx = hashmap_add(data, key->buf, key->len);
-				memcpy(values + (idx * entry_size), two_value, entry_size);
+				if (entry_size > 0) {
+					void *rhs_value = rhs_ptr + (i * entry_size);
+					memcpy(*values + (idx * entry_size), rhs_value, entry_size);
+				}
+			}
+		}
+	} else if (op == HASHMAP_DIFFERENCE) {
+		for (size_t i=0; i<lhs_len; i++) {
+			struct hashmap_key *key = &lhs_keys[i];
+			size_t *rhs_idx = hashmap_lookup(rhs, key->buf, key->len);
+			if (rhs_idx == NULL) {
+				size_t idx = hashmap_add(data, key->buf, key->len);
+				if (entry_size > 0) {
+					void *lhs_value = lhs_ptr + (i * entry_size);
+					memcpy(*values + (idx * entry_size), lhs_value, entry_size);
+				}
 			}
 		}
 	} else {
-		assert(!"invalid join type");
+		assert(!"invalid operation");
 	}
+	hashmap_free(&lhs);
 }
 
 void hashmap_foreach(struct hashmap_data *data, hashmap_foreach_t func, void *arg_ptr) {

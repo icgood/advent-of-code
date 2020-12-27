@@ -19,13 +19,28 @@ static void day_result_check(char *dir, char *filename, char *arg, day_result *w
 	day_result_compute(arg, &res, in);
 	fclose(in);
 
-	if (want->part1 != res.part1) {
-		fprintf(stderr, "%s part1 got:%lld want:%lld\n", filename, res.part1, want->part1);
-		exit(1);
+	if (want->part1 > 0) {
+		if (want->part1 != res.part1) {
+			fprintf(stderr, "%s part1\ngot:  %lld\nwant: %lld\n", filename, res.part1, want->part1);
+			exit(1);
+		}
+	} else {
+		if (strcmp(want->part1_str, res.part1_str) != 0) {
+			fprintf(stderr, "%s part1\ngot:  %s\nwant: %s\n", filename, res.part1_str, want->part1_str);
+			exit(1);
+		}
 	}
-	if (want->part2 != res.part2) {
-		fprintf(stderr, "%s part2 got:%lld want:%lld\n", filename, res.part2, want->part2);
-		exit(1);
+
+	if (want->part2 > 0) {
+		if (want->part2 != res.part2) {
+			fprintf(stderr, "%s part2\ngot:  %lld\nwant: %lld\n", filename, res.part2, want->part2);
+			exit(1);
+		}
+	} else {
+		if (strcmp(want->part2_str, res.part2_str) != 0) {
+			fprintf(stderr, "%s part2\ngot:  %s\nwant: %s\n", filename, res.part2_str, want->part2_str);
+			exit(1);
+		}
 	}
 }
 

@@ -20,6 +20,7 @@ struct deque_data {
 };
 
 void deque_init(struct deque_data *data, void *array, size_t entry_size);
+void deque_move(struct deque_data *data, struct deque_data *dest_data, void *dest_array);
 size_t deque_len(struct deque_data *data);
 void *deque_pointer(struct deque_data *data);
 size_t deque_add(struct deque_data *data, deque_end_t end);
