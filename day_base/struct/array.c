@@ -7,7 +7,7 @@ void array_init(struct array_data *data, void *array_ptr, size_t entry_size) {
 	data->size = 8;
 	data->entry_size = entry_size;
 	data->array_ptr = (void **) array_ptr;
-	*data->array_ptr = calloc(data->size, entry_size);
+	if (entry_size > 0) *data->array_ptr = calloc(data->size, entry_size);
 }
 
 size_t array_len(struct array_data *data) {
@@ -25,10 +25,11 @@ size_t array_add(struct array_data *data) {
 }
 
 void array_realloc(struct array_data *data, size_t size_hint) {
+	size_t entry_size = data->entry_size;
+	if (entry_size == 0) return;
 	size_t new_size = data->size;
 	while (size_hint > new_size) new_size *= 4;
 	if (new_size > data->size) {
-		size_t entry_size = data->entry_size;
 		void *old_array_ptr = *data->array_ptr;
 		void *new_array_ptr = *data->array_ptr = calloc(new_size, entry_size);
 		memcpy(new_array_ptr, old_array_ptr, data->len * entry_size);
@@ -43,5 +44,5 @@ void array_resize(struct array_data *data, size_t len) {
 }
 
 void array_free(struct array_data *data) {
-	free(*data->array_ptr);
+	if (data->entry_size > 0) free(*data->array_ptr);
 }

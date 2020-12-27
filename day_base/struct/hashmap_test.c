@@ -32,10 +32,10 @@ static void assert_each(struct hashmap_key *key, void *value, size_t idx, void *
 	else if (idx == 7) assert_entry(key, "seven", num == 70);
 	else if (idx == 8) assert_entry(key, "eight", num == 80);
 	else if (idx == 9) assert_entry(key, "nine", num == 90);
-	else assert(0);
+	else assert(!"unexpected index");
 }
 
-int main() {
+static void test_basic_operations() {
 	struct hashmap_data data;
 	number_t *array;
 
@@ -67,5 +67,38 @@ int main() {
 	assert(1023 == arg);
 
 	hashmap_free(&data);
+}
+
+static void test_join_intersect() {
+	struct hashmap_data joined, one, two;
+	number_t *val_joined, *val_one, *val_two;
+
+	hashmap_init(&joined, &val_joined, sizeof (int), 32);
+	hashmap_init(&one, &val_one, sizeof (int), 32);
+	hashmap_init(&two, &val_two, sizeof (int), 32);
+
+	assign(&one, "one", 1);
+	assign(&one, "two", 2);
+	assign(&one, "three", 3);
+	assign(&two, "two", 20);
+	assign(&two, "three", 30);
+	assign(&two, "four", 40);
+
+	hashmap_join(&joined, HASHMAP_INTERSECT, &one, &two);
+	assert(2 == hashmap_len(&joined));
+
+	assert(NULL == hashmap_lookup(&joined, "one", 3));
+	assert(20 == val_joined[*hashmap_lookup(&joined, "two", 3)]);
+	assert(30 == val_joined[*hashmap_lookup(&joined, "three", 5)]);
+	assert(NULL == hashmap_lookup(&joined, "four", 4));
+
+	hashmap_free(&joined);
+	hashmap_free(&one);
+	hashmap_free(&two);
+}
+
+int main() {
+	test_basic_operations();
+	test_join_intersect();
 	return 0;
 }

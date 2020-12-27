@@ -14,6 +14,7 @@ void deque_init(struct deque_data *data, void *array, size_t entry_size) {
 	data->head = NULL;
 	data->tail = NULL;
 	data->len = 0;
+	data->entry_size = entry_size;
 	array_init(&data->array_data, array, entry_size);
 	bitmap_init(&data->bitmap, 0);
 }
@@ -26,17 +27,10 @@ void *deque_pointer(struct deque_data *data) {
 	return array_pointer(&data->array_data);
 }
 
-static size_t first_empty(struct bitmap_data *bitmap) {
-	for (size_t i=0; i<bitmap_len(bitmap); i++) {
-		if (!bitmap_get(bitmap, i)) return i;
-	}
-	assert(!"bitmap is full");
-}
-
 size_t deque_add(struct deque_data *data, deque_end_t end) {
 	size_t index;
 	if (bitmap_count(&data->bitmap) < array_len(&data->array_data)) {
-		index = first_empty(&data->bitmap);
+		index = bitmap_min(&data->bitmap, 0);
 	} else {
 		index = array_add(&data->array_data);
 		bitmap_resize(&data->bitmap, array_len(&data->array_data));
@@ -98,6 +92,22 @@ size_t deque_peek(struct deque_data *data, size_t pos, deque_end_t end) {
 	}
 	assert(iter != NULL);
 	return iter->index;
+}
+
+int deque_find(struct deque_data *data, size_t *index, deque_action_t action, deque_matcher_t matcher, void *arg_ptr) {
+	struct deque_node *iter = data->head;
+	void *values = deque_pointer(data);
+	size_t entry_size = data->entry_size;
+	while (iter != NULL) {
+		if (matcher(values + (iter->index * entry_size), arg_ptr)) break;
+		iter = iter->next;
+	}
+	if (iter == NULL) return 0;
+	if (index != NULL) *index = iter->index;
+	if (action != DEQUE_GET) {
+		assert(!"action not implemented");
+	}
+	return 1;
 }
 
 void deque_free(struct deque_data *data) {

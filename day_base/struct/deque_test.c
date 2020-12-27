@@ -5,14 +5,20 @@
 typedef struct {
 	long int num;
 	char letter;
-} test;
+} test_t;
+
+int matcher(void *value_ptr, void *arg) {
+	char letter = *(char *) arg;
+	test_t *value = (test_t *) value_ptr;
+	return value->letter == letter;
+}
 
 int main() {
 	struct deque_data deque;
-	test *array;
+	test_t *array;
 	size_t idx;
 
-	deque_init(&deque, &array, sizeof (test));
+	deque_init(&deque, &array, sizeof (test_t));
 
 	for (int i=0; i<100; i++) {
 		idx = deque_add(&deque, DEQUE_BACK);
@@ -43,6 +49,11 @@ int main() {
 		idx = deque_peek(&deque, i, DEQUE_FRONT);
 		assert(i + 100 == array[idx].num);
 	}
+
+	char filter_letter = 'x', bad_letter = ' ';
+	assert(deque_find(&deque, &idx, 0, matcher, &filter_letter));
+	assert(filter_letter == array[idx].letter);
+	assert(!deque_find(&deque, &idx, 0, matcher, &bad_letter));
 
 	deque_free(&deque);
 	return 0;

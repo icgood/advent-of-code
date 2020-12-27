@@ -9,6 +9,7 @@ typedef struct bitmap_data bitmap_t;
 struct bitmap_data {
 	bitmap_type_t type;
 	size_t size;
+	size_t count;
 	unsigned char *ptr;
 	unsigned char buf[0];
 };
@@ -19,7 +20,8 @@ size_t bitmap_len(struct bitmap_data *data);
 size_t bitmap_sizeof(struct bitmap_data *data);
 unsigned char *bitmap_pointer(struct bitmap_data *data);
 size_t bitmap_count(struct bitmap_data *data);
-size_t bitmap_max(struct bitmap_data *data);
+size_t bitmap_min(struct bitmap_data *data, int val);
+size_t bitmap_max(struct bitmap_data *data, int val);
 int bitmap_cmp(struct bitmap_data *data, struct bitmap_data *other);
 void bitmap_set(struct bitmap_data *data, size_t pos);
 void bitmap_unset(struct bitmap_data *data, size_t pos);

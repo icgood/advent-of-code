@@ -6,6 +6,7 @@
 void bitmap_init(struct bitmap_data *data, size_t bits) {
 	data->type = BITMAP_DYNAMIC;
 	data->size = bits / 8 + 1;
+	data->count = 0;
 	data->ptr = calloc(data->size, sizeof (unsigned char));
 }
 
@@ -15,6 +16,7 @@ void bitmap_init_static(struct bitmap_data *data, size_t bits) {
 	// least `after` bits of space.
 	data->type = BITMAP_STATIC;
 	data->size = (bits + 7) / 8;
+	data->count = 0;
 	data->ptr = NULL;
 	memset(bitmap_pointer(data), 0, data->size);
 }
@@ -34,19 +36,23 @@ unsigned char *bitmap_pointer(struct bitmap_data *data) {
 }
 
 size_t bitmap_count(struct bitmap_data *data) {
-	size_t count = 0;
-	for (size_t i=0; i<bitmap_len(data); i++) {
-		if (bitmap_get(data, i)) count++;
-	}
-	return count;
+	return data->count;
 }
 
-size_t bitmap_max(struct bitmap_data *data) {
-	size_t max = 0;
+size_t bitmap_min(struct bitmap_data *data, int val) {
 	for (size_t i=0; i<bitmap_len(data); i++) {
-		if (bitmap_get(data, i)) max = i;
+		if (bitmap_get(data, i) == val) return i;;
 	}
-	return max;
+	assert(!"no matching bits found");
+}
+
+size_t bitmap_max(struct bitmap_data *data, int val) {
+	size_t max = 0;
+	for (size_t i=1; i<=bitmap_len(data); i++) {
+		if (bitmap_get(data, i-1) == val) max = i;
+	}
+	if (max > 0) return max - 1;
+	assert(!"no matching bits found");
 }
 
 int bitmap_cmp(struct bitmap_data *data, struct bitmap_data *other) {
@@ -70,6 +76,7 @@ void bitmap_set(struct bitmap_data *data, size_t pos) {
 	const size_t idx = pos / 8;
 	const unsigned char bit = 1 << (pos % 8);
 	unsigned char *ptr = bitmap_pointer(data);
+	if (!bitmap_get(data, pos)) data->count++;
 	ptr[idx] |= bit;
 }
 
@@ -77,6 +84,7 @@ void bitmap_unset(struct bitmap_data *data, size_t pos) {
 	const size_t idx = pos / 8;
 	const unsigned char bit = 1 << (pos % 8);
 	unsigned char *ptr = bitmap_pointer(data);
+	if (bitmap_get(data, pos)) data->count--;
 	ptr[idx] &= ~bit;
 }
 
@@ -98,6 +106,7 @@ int bitmap_bitand(struct bitmap_data *data, size_t pos, struct bitmap_data *with
 void bitmap_clear(struct bitmap_data *data) {
 	unsigned char *ptr = bitmap_pointer(data);
 	memset(ptr, 0, data->size);
+	data->count = 0;
 }
 
 void bitmap_resize(struct bitmap_data *data, size_t bits) {

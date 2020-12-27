@@ -43,7 +43,7 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	res->part1 = one_diffs * three_diffs;
 
 	// part 2
-	size_t goal = bitmap_max(&bitmap);
+	size_t goal = bitmap_max(&bitmap, 1);
 	struct array_data cache;
 	size_t *cache_array;
 	array_init(&cache, &cache_array, sizeof (size_t));

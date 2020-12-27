@@ -36,26 +36,6 @@ sh_test(
     data = [":bitmap_test"],
 )
 
-# hashmap
-cc_library(
-    name = "hashmap",
-    srcs = ["hashmap.c"],
-    hdrs = ["hashmap.h"],
-    deps = [":array"],
-    visibility = ["//visibility:public"],
-)
-cc_test(
-    name = "hashmap_test",
-    srcs = ["hashmap_test.c"],
-    deps = [":hashmap"],
-)
-sh_test(
-    name = "hashmap_leaks",
-    srcs = ["//day_base:leaks-test.sh"],
-    args = ["$(location //day_base/struct:hashmap_test)"],
-    data = [":hashmap_test"],
-)
-
 # deque
 cc_library(
     name = "deque",
@@ -74,4 +54,24 @@ sh_test(
     srcs = ["//day_base:leaks-test.sh"],
     args = ["$(location //day_base/struct:deque_test)"],
     data = [":deque_test"],
+)
+
+# hashmap
+cc_library(
+    name = "hashmap",
+    srcs = ["hashmap.c"],
+    hdrs = ["hashmap.h"],
+    deps = [":array", ":deque"],
+    visibility = ["//visibility:public"],
+)
+cc_test(
+    name = "hashmap_test",
+    srcs = ["hashmap_test.c"],
+    deps = [":hashmap"],
+)
+sh_test(
+    name = "hashmap_leaks",
+    srcs = ["//day_base:leaks-test.sh"],
+    args = ["$(location //day_base/struct:hashmap_test)"],
+    data = [":hashmap_test"],
 )

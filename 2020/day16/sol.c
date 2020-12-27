@@ -120,7 +120,7 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 			if (!bitmap_get(&determined, idx)) {
 				field_t *field = &fields[idx];
 				if (bitmap_count(&field->possibilities) == 1) {
-					size_t col = bitmap_max(&field->possibilities);
+					size_t col = bitmap_max(&field->possibilities, 1);
 					bitmap_set(&determined, idx);
 					for (size_t j=0; j<fields_len; j++) {
 						bitmap_unset(&fields[j].possibilities, col);
