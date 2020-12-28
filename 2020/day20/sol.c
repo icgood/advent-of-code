@@ -55,7 +55,7 @@ typedef struct bitmap_data sea_monster_t[3];
 
 static void parse_tile(tile_t *tile, char (*grid)[10]) {
 	for (border_side_t side=0; side<4; side++) {
-		bitmap_init_static(&tile->borders[side].bitmap, 10);
+		bitmap_init_static(&tile->borders[side].bitmap, 2);
 	}
 
 	for (size_t i=0; i<10; i++) {
@@ -72,7 +72,7 @@ static void parse_tile(tile_t *tile, char (*grid)[10]) {
 	}
 
 	for (size_t y=0; y<8; y++) {
-		bitmap_init_static(&tile->image[y].bitmap, 8);
+		bitmap_init_static(&tile->image[y].bitmap, 1);
 		for (size_t x=0; x<8; x++) {
 			if (grid[y+1][x+1] == WHITE) bitmap_set(&tile->image[y].bitmap, x);
 		}

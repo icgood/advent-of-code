@@ -15,7 +15,7 @@ int main() {
 
 	bitmap_init(&data, 5);
 	bitmap_init(&mask, 7);
-	bitmap_init_static(&data2.bitmap, 10);
+	bitmap_init_static(&data2.bitmap, 2);
 
 	bitmap_set(&data, 3);
 	bitmap_set(&data, 7);

@@ -16,6 +16,7 @@ def day_cc_solution(year, day, srcs=None, examples=None, deps=None, visibility=N
     native.cc_binary(
         name = day,
         deps = ['//day_base:day_run', ':' + day_lib_name],
+        data = inputs,
         visibility = visibility,
     )
 

@@ -10,15 +10,15 @@ void bitmap_init(struct bitmap_data *data, size_t bits) {
 	data->ptr = calloc(data->size, sizeof (unsigned char));
 }
 
-void bitmap_init_static(struct bitmap_data *data, size_t bits) {
+void bitmap_init_static(struct bitmap_data *data, size_t bytes) {
 	// NOTE: this must be used as part of a containing struct where the
 	// bitmap data is *immediately* followed by a byte array with at
 	// least `after` bits of space.
 	data->type = BITMAP_STATIC;
-	data->size = (bits + 7) / 8;
+	data->size = bytes;
 	data->count = 0;
 	data->ptr = NULL;
-	memset(bitmap_pointer(data), 0, data->size);
+	memset(bitmap_pointer(data), 0, bytes);
 }
 
 size_t bitmap_len(struct bitmap_data *data) {

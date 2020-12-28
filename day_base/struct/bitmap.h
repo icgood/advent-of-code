@@ -15,7 +15,7 @@ struct bitmap_data {
 };
 
 void bitmap_init(struct bitmap_data *data, size_t bits);
-void bitmap_init_static(struct bitmap_data *data, size_t bits);
+void bitmap_init_static(struct bitmap_data *data, size_t bytes);
 size_t bitmap_len(struct bitmap_data *data);
 size_t bitmap_sizeof(struct bitmap_data *data);
 unsigned char *bitmap_pointer(struct bitmap_data *data);
