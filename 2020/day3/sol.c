@@ -41,7 +41,7 @@ static size_t num_trees(char **grid, size_t grid_len, size_t grid_width, size_t 
 	return ret;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	size_t grid_len = 0;
 	size_t grid_size = 2;
 	char **grid = new_grid(grid_size, NULL, 0);
@@ -67,9 +67,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	free_grid(grid, grid_size);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{7, 336},
-		{216, 6708199680},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {7, 336}},
+		{DAY_INPUT, {216, 6708199680}},
 	};
+	return checks;
 }

@@ -12,7 +12,7 @@ typedef struct {
 	timestamp_t offset;
 } bus_t;
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char line[1024], *ptr;
 	timestamp_t earliest, offset = 0;
 	struct array_data array;
@@ -61,9 +61,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	array_free(&array);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{295, 1068781},
-		{2305, 552612234243498},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {295, 1068781}},
+		{DAY_INPUT, {2305, 552612234243498}},
 	};
+	return checks;
 }

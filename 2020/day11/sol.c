@@ -132,7 +132,7 @@ static int apply_rules(struct seats *seats, count_adjacent count_func, int thres
 	return changes;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	struct array_data array;
 	struct seats seats;
 	line_buf line;
@@ -173,9 +173,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	array_free(&array);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{37, 26},
-		{2453, 2159},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {37, 26}},
+		{DAY_INPUT, {2453, 2159}},
 	};
+	return checks;
 }

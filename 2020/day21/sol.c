@@ -95,7 +95,7 @@ static void determine_allergen_ingredients(hashmap_t *allergens, food_t *foods, 
 	hashmap_free(&determined_ingredients);
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	food_t foods[MAX_FOODS] = {};
 	hashmap_t ingredients;
 	hashmap_t allergens[NUM_ALLERGENS];
@@ -131,9 +131,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	hashmap_free(&ingredients);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{5, 0, "", "mxmxvkd,sqjhc,fvjkl"},
-		{2317, 0, "", "kbdgs,sqvv,slkfgq,vgnj,brdd,tpd,csfmb,lrnz"},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {5, 0, "", "mxmxvkd,sqjhc,fvjkl"}},
+		{DAY_INPUT, {2317, 0, "", "kbdgs,sqvv,slkfgq,vgnj,brdd,tpd,csfmb,lrnz"}},
 	};
+	return checks;
 }

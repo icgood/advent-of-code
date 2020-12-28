@@ -75,7 +75,7 @@ static void read(FILE *in, struct array_data *array, assignment_t **ptr) {
 	}
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	struct array_data array;
 	assignment_t *assignments;
 
@@ -85,43 +85,36 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	number_t *memory;
 
 	// part 1
-	hashmap_init(&hashmap, &memory, sizeof (number_t), 256);
-	for (size_t i=0; i<array_len(&array); i++) {
-		assignment_t *curr = &assignments[i];
-		size_t idx = hashmap_add(&hashmap, &curr->address, sizeof (number_t));
-		memory[idx] = apply_bitmask(&curr->bitmask, curr->value, '0');
-	}
-	res->part1 = sum_memory(memory, hashmap_len(&hashmap));
-	hashmap_free(&hashmap);
-
-	// load different part 2 file
-	if (arg != NULL) {
-		array_free(&array);
-		in = fopen(arg, "r");
-		assert(in != NULL);
-		read(in, &array, &assignments);
-		fclose(in);
+	if (strcmp(arg, "") == 0 || strcmp(arg, "part1") == 0) {
+		hashmap_init(&hashmap, &memory, sizeof (number_t), 256);
+		for (size_t i=0; i<array_len(&array); i++) {
+			assignment_t *curr = &assignments[i];
+			size_t idx = hashmap_add(&hashmap, &curr->address, sizeof (number_t));
+			memory[idx] = apply_bitmask(&curr->bitmask, curr->value, '0');
+		}
+		res->part1 = sum_memory(memory, hashmap_len(&hashmap));
+		hashmap_free(&hashmap);
 	}
 
 	// part 2
-	hashmap_init(&hashmap, &memory, sizeof (number_t), 4096);
-	for (size_t i=0; i<array_len(&array); i++) {
-		assignment_t *curr = &assignments[i];
-		assign_all(&curr->bitmask, curr->address, curr->value, &hashmap, 0);
+	if (strcmp(arg, "") == 0 || strcmp(arg, "part2") == 0) {
+		hashmap_init(&hashmap, &memory, sizeof (number_t), 4096);
+		for (size_t i=0; i<array_len(&array); i++) {
+			assignment_t *curr = &assignments[i];
+			assign_all(&curr->bitmask, curr->address, curr->value, &hashmap, 0);
+		}
+		res->part2 = sum_memory(memory, hashmap_len(&hashmap));
+		hashmap_free(&hashmap);
 	}
-	res->part2 = sum_memory(memory, hashmap_len(&hashmap));
-	hashmap_free(&hashmap);
 
 	array_free(&array);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*args = (day_arguments) {
-		"2020/day14/example2",
-		NULL,
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {165, 0}, "part1"},
+		{"example2", {0, 208}, "part2"},
+		{DAY_INPUT, {14839536808842, 4215284199669}},
 	};
-	*answers = (day_answers) {
-		{165, 208},
-		{14839536808842, 4215284199669},
-	};
+	return checks;
 }

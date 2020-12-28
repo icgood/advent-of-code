@@ -43,7 +43,7 @@ static void parse_ticket(char *line, ticket_t *ticket) {
 	}
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char line[1024];
 	struct array_data array_fields;
 	struct array_data array_tickets;
@@ -144,9 +144,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	array_free(&array_tickets);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{71, 1},
-		{23954, 453459307723},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {71, 1}},
+		{DAY_INPUT, {23954, 453459307723}},
 	};
+	return checks;
 }

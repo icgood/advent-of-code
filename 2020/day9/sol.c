@@ -31,8 +31,8 @@ static number compute_part2(struct deque_data *deque, number *array) {
 	return min + max;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
-	const size_t window_len = arg != NULL ? atoi(arg) : 0;
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
+	const size_t window_len = atoi(arg);
 	assert(window_len > 0);
 	struct array_data data;
 	number *array;
@@ -84,13 +84,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	array_free(&data);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*args = (day_arguments) {
-		"5",
-		"25",
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {127, 62}, "5"},
+		{DAY_INPUT, {400480901, 67587168}, "25"},
 	};
-	*answers = (day_answers) {
-		{127, 62},
-		{400480901, 67587168},
-	};
+	return checks;
 }

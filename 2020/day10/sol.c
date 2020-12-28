@@ -19,7 +19,7 @@ static size_t count_ways(struct bitmap_data *bitmap, size_t *cache, size_t pos, 
 	return result;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	struct bitmap_data bitmap;
 	size_t num;
 	bitmap_init(&bitmap, 0);
@@ -54,9 +54,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	bitmap_free(&bitmap);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{220, 19208},
-		{1820, 3454189699072},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {220, 19208}},
+		{DAY_INPUT, {1820, 3454189699072}},
 	};
+	return checks;
 }

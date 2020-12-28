@@ -4,7 +4,7 @@
 #include <string.h>
 #include "day_base/day_result.h"
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	uint8_t bitmap[256];
 	char line[1024];
 	memset(bitmap, 0, sizeof (bitmap));
@@ -36,9 +36,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	}
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{514579, 241861950},
-		{270144, 261342720},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {514579, 241861950}},
+		{DAY_INPUT, {270144, 261342720}},
 	};
+	return checks;
 }

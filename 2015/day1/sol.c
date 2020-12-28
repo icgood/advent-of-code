@@ -3,7 +3,7 @@
 #include <string.h>
 #include "day_base/day_result.h"
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char line[102400];
 	fgets(line, sizeof (line), in);
 	size_t len = strspn(line, "()");
@@ -26,9 +26,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	}
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{-3, 1},
-		{138, 1771},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {-3, 1}},
+		{DAY_INPUT, {138, 1771}},
 	};
+	return checks;
 }

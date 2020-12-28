@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#define DAY_INPUT "input"
+
 typedef long long int day_result_num_t;
 typedef char day_result_str_t[256];
 
@@ -8,18 +10,14 @@ typedef struct {
 	day_result_num_t part2;
 	day_result_str_t part1_str;
 	day_result_str_t part2_str;
-} day_result;
+} day_result_t;
 
-extern void day_result_compute(char *arg, day_result *res, FILE *in);
-
-typedef struct {
-	char *example_arg;
-	char *input_arg;
-} day_arguments;
+extern void day_result_compute(char *arg, day_result_t *res, FILE *in);
 
 typedef struct {
-	day_result example;
-	day_result input;
-} day_answers;
+	char file[128];
+	day_result_t result;
+	char arg[128];
+} day_check_t;
 
-extern void day_answers_provide(day_arguments *args, day_answers *answers);
+extern day_check_t *day_check_provide();

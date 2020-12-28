@@ -284,7 +284,7 @@ static void rotate_board(struct bitmap_data *board, size_t dim) {
 	for (size_t row=0; row<dim; row++) bitmap_free(&board_copy[row]);
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char line[1024];
 	struct array_data array;
 	tile_t *tiles;
@@ -381,9 +381,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	array_free(&array);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{20899048083289, 273},
-		{83775126454273, 1993},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {20899048083289, 273}},
+		{DAY_INPUT, {83775126454273, 1993}},
 	};
+	return checks;
 }

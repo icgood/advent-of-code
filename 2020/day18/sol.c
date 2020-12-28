@@ -105,7 +105,7 @@ static void free_expression(expression_t *exp) {
 	memset(exp, 0, sizeof (expression_t));
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char *lines[512];
 	size_t num_lines;
 	expression_t root;
@@ -130,9 +130,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	for (size_t i=0; i<=num_lines; i++) free(lines[i]);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{122, 282},
-		{86311597203806, 276894767062189},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {122, 282}},
+		{DAY_INPUT, {86311597203806, 276894767062189}},
 	};
+	return checks;
 }

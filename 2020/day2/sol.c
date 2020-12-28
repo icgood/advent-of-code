@@ -18,7 +18,7 @@ static entry *new_array(size_t new_size, entry *old_array, size_t len) {
 	return new_array;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	size_t len = 0, size = 2;
 	entry *array = new_array(size, NULL, 0);
 	char line[1024];
@@ -53,9 +53,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	free(array);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{2, 1},
-		{572, 306},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {2, 1}},
+		{DAY_INPUT, {572, 306}},
 	};
+	return checks;
 }

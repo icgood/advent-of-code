@@ -24,7 +24,7 @@ static number_t get_spoken(number_t *starting, size_t starting_len, size_t n) {
 	return prev;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char line[1024];
 	size_t starting_len = 0;
 	number_t starting[100];
@@ -44,9 +44,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	res->part2 = get_spoken(starting, starting_len, 30000000);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{436, 175594},
-		{662, 37312},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {436, 175594}},
+		{DAY_INPUT, {662, 37312}},
 	};
+	return checks;
 }

@@ -7,13 +7,13 @@
 #include <string.h>
 #include "day_base/day_result.h"
 
-static void day_result_check(char *dir, char *filename, char *arg, day_result *want) {
+static void day_result_check(char *dir, char *filename, char *arg, day_result_t *want) {
 	char path[PATH_MAX] = "";
 	strcat(path, dir);
 	strcat(path, "/");
 	strcat(path, filename);
 
-	day_result res = {};
+	day_result_t res = {};
 	FILE *in = fopen(path, "r");
 	assert(in != NULL);
 	day_result_compute(arg, &res, in);
@@ -45,15 +45,20 @@ static void day_result_check(char *dir, char *filename, char *arg, day_result *w
 }
 
 int main(int argc, char **argv) {
-	assert(argc >= 2);
+	assert(argc > 2);
 	char *dir = argv[1];
 
-	day_arguments args = {};
-	day_answers answers = {};
-	day_answers_provide(&args, &answers);
+	day_check_t *checks = day_check_provide();
 
-	day_result_check(dir, "example", args.example_arg, &answers.example);
-	day_result_check(dir, "input", args.input_arg, &answers.input);
+	for (int i=2; i<argc; i++) {
+		for (int j=0; ; j++) {
+			day_check_t *check = &checks[j];
+			if (strcmp(argv[i], check->file) == 0) {
+				day_result_check(dir, check->file, check->arg, &check->result);
+				break;
+			}
+		}
+	}
 
 	return 0;
 }

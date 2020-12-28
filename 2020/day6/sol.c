@@ -20,7 +20,7 @@ static int count_bits(uint32_t val) {
 	return count;
 }
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	char line[32];
 	size_t len = 0, size = 2;
 	uint32_t *array1 = new_array(size, NULL, 0, 0);
@@ -60,9 +60,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	free(array2);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{11, 6},
-		{7283, 3520},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {11, 6}},
+		{DAY_INPUT, {7283, 3520}},
 	};
+	return checks;
 }

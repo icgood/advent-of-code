@@ -15,7 +15,7 @@ typedef struct {
 extern apply_funcs_t part1_functions;
 extern apply_funcs_t part2_functions;
 
-void day_result_compute(char *arg, day_result *res, FILE *in) {
+void day_result_compute(char *arg, day_result_t *res, FILE *in) {
 	struct array_data array;
 	instruction_t *instructions;
 	array_init(&array, &instructions, sizeof (instruction_t));
@@ -54,9 +54,10 @@ void day_result_compute(char *arg, day_result *res, FILE *in) {
 	array_free(&array);
 }
 
-void day_answers_provide(day_arguments *args, day_answers *answers) {
-	*answers = (day_answers) {
-		{25, 286},
-		{319, 50157},
+day_check_t *day_check_provide() {
+	static day_check_t checks[] = {
+		{"example", {25, 286}},
+		{DAY_INPUT, {319, 50157}},
 	};
+	return checks;
 }
