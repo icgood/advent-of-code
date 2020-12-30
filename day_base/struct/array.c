@@ -11,7 +11,7 @@ void array_init(struct array_data *data, void *array_ptr, size_t entry_size) {
 }
 
 void array_move(struct array_data *data, struct array_data *dest_data, void *dest_array_ptr) {
-	*dest_data = *data;
+	if (data != dest_data) *dest_data = *data;
 	dest_data->array_ptr = (void **) dest_array_ptr;
 	if (data->entry_size > 0) *dest_data->array_ptr = array_pointer(data);
 }

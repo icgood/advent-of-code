@@ -9,8 +9,13 @@ typedef struct {
 	char letter;
 } test_t;
 
-int matcher(void *value_ptr, void *arg) {
-	char letter = *(char *) arg;
+int node_matcher(struct deque_data *data, size_t node, const void *value_ptr, void *arg_ptr) {
+	size_t *node_ptr = (size_t *) arg_ptr;
+	return node == *node_ptr;
+}
+
+int letter_matcher(struct deque_data *data, size_t node, const void *value_ptr, void *arg_ptr) {
+	char letter = *(char *) arg_ptr;
 	test_t *value = (test_t *) value_ptr;
 	return value->letter == letter;
 }
@@ -19,6 +24,24 @@ void test_basic_operations() {
 	struct deque_data deque;
 	test_t *array;
 	size_t idx;
+
+	deque_init(&deque, &array, sizeof (test_t));
+	idx = deque_add(&deque, DEQUE_FRONT);
+	assert(idx == deque_peek(&deque, 0, DEQUE_FRONT));
+	assert(idx == deque_peek(&deque, 0, DEQUE_BACK));
+	size_t idx2 = deque_add(&deque, DEQUE_FRONT);
+	assert(idx2 == deque_peek(&deque, 0, DEQUE_FRONT));
+	assert(idx == deque_peek(&deque, 1, DEQUE_FRONT));
+	assert(idx == deque_peek(&deque, 0, DEQUE_BACK));
+	assert(idx2 == deque_peek(&deque, 1, DEQUE_BACK));
+	size_t idx3 = deque_add(&deque, DEQUE_BACK);
+	assert(idx2 == deque_peek(&deque, 0, DEQUE_FRONT));
+	assert(idx == deque_peek(&deque, 1, DEQUE_FRONT));
+	assert(idx3 == deque_peek(&deque, 2, DEQUE_FRONT));
+	assert(idx3 == deque_peek(&deque, 0, DEQUE_BACK));
+	assert(idx == deque_peek(&deque, 1, DEQUE_BACK));
+	assert(idx2 == deque_peek(&deque, 2, DEQUE_BACK));
+	deque_free(&deque);
 
 	deque_init(&deque, &array, sizeof (test_t));
 
@@ -51,11 +74,6 @@ void test_basic_operations() {
 		idx = deque_peek(&deque, i, DEQUE_FRONT);
 		assert(i + 100 == array[idx].num);
 	}
-
-	char filter_letter = 'x', bad_letter = ' ';
-	assert(deque_find(&deque, &idx, 0, matcher, &filter_letter));
-	assert(filter_letter == array[idx].letter);
-	assert(!deque_find(&deque, &idx, 0, matcher, &bad_letter));
 
 	deque_free(&deque);
 }
@@ -98,15 +116,72 @@ void test_memory() {
 		array[idx].letter = 'a' + (i % 26);
 	}
 
-	size_t before_size = array_sizeof(&deque.array_data);
+	size_t before_size = array_sizeof(&deque.node_array) + array_sizeof(&deque.value_array);
 	for (number_t i=0; i<10000; i++) {
 		deque_remove(&deque, DEQUE_FRONT);
 		deque_remove(&deque, DEQUE_FRONT);
 		deque_add(&deque, DEQUE_BACK);
 		deque_add(&deque, DEQUE_BACK);
 	}
-	size_t after_size = array_sizeof(&deque.array_data);
+	size_t after_size = array_sizeof(&deque.node_array) + array_sizeof(&deque.value_array);
 	assert(before_size == after_size);
+
+	deque_free(&deque);
+}
+
+void test_rotate_shift() {
+	struct deque_data deque;
+	test_t *array;
+	size_t idx;
+
+	deque_init(&deque, &array, sizeof (test_t));
+	for (number_t i=0; i<100; i++) {
+		idx = deque_add(&deque, DEQUE_BACK);
+		array[idx].num = i;
+		array[idx].letter = 'a' + (i % 26);
+	}
+
+	idx = deque_peek(&deque, 0, DEQUE_FRONT);
+	assert(0 == array[idx].num);
+	assert('a' == array[idx].letter);
+
+	char letter = 'd';
+	size_t head = deque_head(&deque);
+
+	deque_find(&deque, &idx, DEQUE_LEFT, DEQUE_ROTATE, letter_matcher, &letter);
+	assert(3 == array[idx].num);
+	assert(letter == array[idx].letter);
+	deque_shift(&deque, 1, head);
+	deque_find(&deque, &idx, DEQUE_LEFT, DEQUE_ROTATE, letter_matcher, &letter);
+	assert(29 == array[idx].num);
+	assert(letter == array[idx].letter);
+	deque_shift(&deque, 1, head);
+	deque_find(&deque, &idx, DEQUE_LEFT, DEQUE_ROTATE, letter_matcher, &letter);
+	assert(55 == array[idx].num);
+	assert(letter == array[idx].letter);
+	deque_shift(&deque, 1, head);
+	deque_find(&deque, &idx, DEQUE_LEFT, DEQUE_ROTATE, letter_matcher, &letter);
+	assert(81 == array[idx].num);
+	assert(letter == array[idx].letter);
+	deque_shift(&deque, 1, head);
+	deque_find(&deque, NULL, DEQUE_LEFT, DEQUE_ROTATE, node_matcher, &head);
+
+	deque_set_head(&deque, head);
+	idx = deque_peek(&deque, 0, DEQUE_FRONT);
+	assert(0 == array[idx].num);
+	assert('a' == array[idx].letter);
+	idx = deque_peek(&deque, 3, DEQUE_BACK);
+	assert(3 == array[idx].num);
+	assert(letter == array[idx].letter);
+	idx = deque_peek(&deque, 2, DEQUE_BACK);
+	assert(29 == array[idx].num);
+	assert(letter == array[idx].letter);
+	idx = deque_peek(&deque, 1, DEQUE_BACK);
+	assert(55 == array[idx].num);
+	assert(letter == array[idx].letter);
+	idx = deque_peek(&deque, 0, DEQUE_BACK);
+	assert(81 == array[idx].num);
+	assert(letter == array[idx].letter);
 
 	deque_free(&deque);
 }
@@ -115,5 +190,6 @@ int main() {
 	test_basic_operations();
 	test_move();
 	test_memory();
+	test_rotate_shift();
 	return 0;
 }

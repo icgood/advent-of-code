@@ -38,7 +38,7 @@ void hashmap_init(struct hashmap_data *data, void *array, size_t entry_size, siz
 }
 
 void hashmap_move(struct hashmap_data *data, struct hashmap_data *dest_data, void *dest_array) {
-	*dest_data = *data;
+	if (data != dest_data) *dest_data = *data;
 	array_move(&data->key_data, &dest_data->key_data, &dest_data->keys);
 	array_move(&data->value_data, &dest_data->value_data, dest_array);
 	for (size_t i=0; i<data->num_buckets; i++) {
@@ -54,7 +54,7 @@ void *hashmap_pointer(struct hashmap_data *data) {
 	return array_pointer(&data->value_data);
 }
 
-static int key_matcher(void *value_ptr, void *arg_ptr) {
+static int key_matcher(struct deque_data *data, size_t node, const void *value_ptr, void *arg_ptr) {
 	struct hashmap_matcher_arg *arg = (struct hashmap_matcher_arg *) arg_ptr;
 	size_t index = *(size_t *) value_ptr;
 	struct hashmap_key *key = &arg->keys[index];
@@ -70,7 +70,7 @@ size_t hashmap_add(struct hashmap_data *data, const void *key, size_t key_len) {
 	if ((bucket->hint & key_hash) == key_hash) {
 		struct hashmap_matcher_arg arg = {data->keys, key, key_len, key_hash};
 		size_t sub_idx;
-		if (deque_find(&bucket->deque, &sub_idx, 0, key_matcher, &arg)) {
+		if (deque_find(&bucket->deque, &sub_idx, DEQUE_LEFT, 0, key_matcher, &arg)) {
 			return bucket->indexes[sub_idx];
 		}
 	}
@@ -94,7 +94,7 @@ size_t *hashmap_lookup(struct hashmap_data *data, const void *key, size_t key_le
 	if ((bucket->hint & key_hash) != key_hash) return NULL;
 	struct hashmap_matcher_arg arg = {data->keys, key, key_len, key_hash};
 	size_t sub_idx;
-	if (deque_find(&bucket->deque, &sub_idx, 0, key_matcher, &arg)) {
+	if (deque_find(&bucket->deque, &sub_idx, DEQUE_LEFT, 0, key_matcher, &arg)) {
 		return &bucket->indexes[sub_idx];
 	}
 	return NULL;

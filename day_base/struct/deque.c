@@ -1,27 +1,31 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include "array.h"
 #include "bitmap.h"
 #include "deque.h"
 
 struct deque_node {
-	size_t index;
-	struct deque_node *prev;
-	struct deque_node *next;
+	size_t node_index;
+	size_t value_index;
+	size_t next;
+	size_t prev;
 };
 
 void deque_init(struct deque_data *data, void *array, size_t entry_size) {
-	data->head = NULL;
-	data->tail = NULL;
+	data->head = 0;
 	data->len = 0;
 	data->entry_size = entry_size;
-	array_init(&data->array_data, array, entry_size);
-	bitmap_init(&data->bitmap, 0);
+	array_init(&data->node_array, &data->nodes, sizeof (struct deque_node));
+	array_init(&data->value_array, array, entry_size);
+	bitmap_init(&data->node_bitmap, 0);
+	bitmap_init(&data->value_bitmap, 0);
 }
 
 void deque_move(struct deque_data *data, struct deque_data *dest_data, void *dest_array) {
-	*dest_data = *data;
-	array_move(&data->array_data, &dest_data->array_data, dest_array);
+	if (data != dest_data) *dest_data = *data;
+	array_move(&data->node_array, &dest_data->node_array, &dest_data->nodes);
+	array_move(&data->value_array, &dest_data->value_array, dest_array);
 }
 
 size_t deque_len(struct deque_data *data) {
@@ -29,99 +33,142 @@ size_t deque_len(struct deque_data *data) {
 }
 
 void *deque_pointer(struct deque_data *data) {
-	return array_pointer(&data->array_data);
+	return array_pointer(&data->value_array);
+}
+
+static size_t find_index(struct array_data *array, struct bitmap_data *bitmap) {
+	size_t len = array_len(array);
+	size_t index;
+	if (bitmap_count(bitmap) < len) {
+		index = bitmap_min(bitmap, 0);
+	} else {
+		index = array_add(array);
+		bitmap_resize(bitmap, len+1);
+	}
+	bitmap_set(bitmap, index);
+	return index;
 }
 
 size_t deque_add(struct deque_data *data, deque_end_t end) {
-	size_t index;
-	if (bitmap_count(&data->bitmap) < array_len(&data->array_data)) {
-		index = bitmap_min(&data->bitmap, 0);
+	size_t node_index = find_index(&data->node_array, &data->node_bitmap);
+	size_t value_index = find_index(&data->value_array, &data->value_bitmap);
+	struct deque_node *nodes = data->nodes;
+	struct deque_node *node = &nodes[node_index];
+	node->node_index = node_index;
+	node->value_index = value_index;
+	if (data->len == 0) {
+		data->head = node->next = node->prev = node_index;
 	} else {
-		index = array_add(&data->array_data);
-		bitmap_resize(&data->bitmap, array_len(&data->array_data));
+		struct deque_node *head_node = &nodes[data->head];
+		struct deque_node *head_prev = &nodes[head_node->prev];
+		node->prev = head_prev->node_index;
+		node->next = head_node->node_index;
+		head_prev->next = node_index;
+		head_node->prev = node_index;
+		if (end == DEQUE_FRONT) data->head = node_index;
 	}
-	bitmap_set(&data->bitmap, index);
-
-	struct deque_node *dest = malloc(sizeof (struct deque_node));
-	dest->index = index;
 	data->len++;
-	if (data->head == NULL) {
-		data->head = data->tail = dest;
-		dest->prev = NULL;
-		dest->next = NULL;
-	} else if (end == DEQUE_FRONT) {
-		struct deque_node *old_head = data->head;
-		data->head = old_head->prev = dest;
-		dest->prev = NULL;
-		dest->next = old_head;
-	} else /* if (end == DEQUE_BACK) */ {
-		struct deque_node *old_tail = data->tail;
-		data->tail = old_tail->next = dest;
-		dest->prev = old_tail;
-		dest->next = NULL;
-	}
-	return index;
+	return value_index;
 }
 
 size_t deque_remove(struct deque_data *data, deque_end_t end) {
-	struct deque_node *removed;
-	assert(data->head != NULL || data->tail != NULL);
-	if (data->head == data->tail) {
-		removed = data->head;
-		data->head = data->tail = NULL;
-	} else if (end == DEQUE_FRONT) {
-		removed = data->head;
-		data->head = removed->next;
-		data->head->prev = NULL;
-	} else /* if (end == DEQUE_BACK) */ {
-		removed = data->tail;
-		data->tail = removed->prev;
-		data->tail->next = NULL;
+	assert(data->len != 0 || !"deque is empty");
+	struct deque_node *nodes = data->nodes;
+	struct deque_node *remove;
+	if (data->len == 1) {
+		remove = &nodes[data->head];
+	} else {
+		struct deque_node *head_node = &nodes[data->head];
+		remove = (end == DEQUE_FRONT) ? head_node : &nodes[head_node->prev];
+		struct deque_node *remove_prev = &nodes[remove->prev];
+		struct deque_node *remove_next = &nodes[remove->next];
+		remove_prev->next = remove->next;
+		remove_next->prev = remove->prev;
+		if (end == DEQUE_FRONT) data->head = remove->next;
 	}
-	size_t index = removed->index;
-	bitmap_unset(&data->bitmap, index);
-	free(removed);
 	data->len--;
-	return index;
+	bitmap_unset(&data->node_bitmap, remove->node_index);
+	bitmap_unset(&data->value_bitmap, remove->value_index);
+	return remove->value_index;
 }
 
 size_t deque_peek(struct deque_data *data, size_t pos, deque_end_t end) {
-	size_t i = 0;
-	struct deque_node *iter;
+	size_t len = deque_len(data);
+	assert(pos < len || !"position out of bounds");
+	struct deque_node *nodes = data->nodes;
+	struct deque_node *node = &nodes[data->head];
 	if (end == DEQUE_FRONT) {
-		iter = data->head;
-		while (iter != NULL && i++ < pos) iter = iter->next;
+		for (size_t i=0; i<pos; i++) node = &nodes[node->next];
 	} else /* if (end == DEQUE_BACK) */ {
-		iter = data->tail;
-		while (iter != NULL && i++ < pos) iter = iter->prev;
+		for (size_t i=0; i<=pos; i++) node = &nodes[node->prev];
 	}
-	assert(iter != NULL);
-	return iter->index;
+	return node->value_index;
 }
 
-int deque_find(struct deque_data *data, size_t *index, deque_action_t action, deque_matcher_t matcher, void *arg_ptr) {
-	struct deque_node *iter = data->head;
-	void *values = deque_pointer(data);
+size_t deque_head(struct deque_data *data) {
+	return data->head;
+}
+
+void deque_set_head(struct deque_data *data, size_t node) {
+	data->head = node;
+}
+
+void deque_shift(struct deque_data *data, size_t num, size_t node) {
+	size_t len = deque_len(data);
+	assert(len >= num || !"not enough elements to shift");
+	assert(node < len || !"invalid node");
+	struct deque_node *nodes = data->nodes;
+	struct deque_node *dest = &nodes[node];
+	struct deque_node *start = &nodes[data->head], *end = start;
+	for (size_t i=1; i<num; i++) end = &nodes[end->next];
+	nodes[start->prev].next = data->head = end->next;
+	nodes[end->next].prev = start->prev;
+	nodes[dest->prev].next = start->node_index;
+	start->prev = dest->prev;
+	dest->prev = end->node_index;
+	end->next = dest->node_index;
+}
+
+int deque_find(struct deque_data *data, size_t *index, deque_end_t end, deque_action_t action, deque_matcher_t matcher, void *arg_ptr) {
+	size_t len = deque_len(data);
+	if (len <= 0) return 0;
 	size_t entry_size = data->entry_size;
-	while (iter != NULL) {
-		if (matcher(values + (iter->index * entry_size), arg_ptr)) break;
-		iter = iter->next;
+	void *values = deque_pointer(data);
+	struct deque_node *nodes = data->nodes;
+	struct deque_node *node = &nodes[data->head];
+	int matched = 0;
+	for (size_t i=0; i<len; i++) {
+		if (matcher == NULL || matcher(data, node->node_index, values + (node->value_index * entry_size), arg_ptr)) {
+			matched = 1;
+			break;
+		}
+		node = &nodes[end == DEQUE_FRONT ? node->next : node->prev];
 	}
-	if (iter == NULL) return 0;
-	if (index != NULL) *index = iter->index;
-	if (action != DEQUE_GET) {
-		assert(!"action not implemented");
+	if (matched) {
+		if (index != NULL) *index = node->value_index;
+		if (action == DEQUE_ROTATE) {
+			data->head = node->node_index;
+		} else if (action != DEQUE_NOOP) {
+			assert(!"invalid action");
+		}
 	}
-	return 1;
+	return matched;
+}
+
+void deque_rotate(struct deque_data *data, size_t num, deque_end_t end) {
+	size_t len = deque_len(data);
+	num %= len;
+	struct deque_node *nodes = data->nodes;
+	struct deque_node *head = &nodes[data->head];
+	for (size_t i=0; i<num; i++) {
+		head = &nodes[end == DEQUE_FRONT ? head->next : head->prev];
+	}
+	data->head = head->node_index;
 }
 
 void deque_free(struct deque_data *data) {
-	struct deque_node *iter = data->head;
-	while (iter != NULL) {
-		struct deque_node *next = iter->next;
-		free(iter);
-		iter = next;
-	}
-	array_free(&data->array_data);
-	bitmap_free(&data->bitmap);
+	array_free(&data->node_array);
+	array_free(&data->value_array);
+	bitmap_free(&data->node_bitmap);
+	bitmap_free(&data->value_bitmap);
 }
