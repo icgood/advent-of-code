@@ -35,6 +35,19 @@ static void assert_each(struct hashmap_key *key, void *value, size_t idx, void *
 	else assert(!"unexpected index");
 }
 
+static void each_add(struct hashmap_key *key, void *value, size_t idx, void *arg) {
+	size_t end_num = *(size_t *) arg;
+	size_t key_num = *(size_t *) key->buf;
+	size_t val_num = *(size_t *) value;
+	assert(key_num == val_num);
+	size_t next_num = val_num + 1;
+	if (next_num >= end_num) return;
+	struct hashmap_data *data = key->hashmap;
+	size_t next_idx = hashmap_add(data, &next_num, sizeof (size_t));
+	size_t *array = hashmap_pointer(data);
+	array[next_idx] = next_num;
+}
+
 static void test_basic_operations() {
 	struct hashmap_data data;
 	number_t *array;
@@ -65,6 +78,29 @@ static void test_basic_operations() {
 	number_t arg = 0;
 	hashmap_foreach(&data, assert_each, &arg);
 	assert(1023 == arg);
+
+	hashmap_free(&data);
+}
+
+static void test_foreach_add() {
+	struct hashmap_data data;
+	size_t *array;
+
+	hashmap_init(&data, &array, sizeof (size_t), 32);
+
+	size_t ten = 10;
+	size_t idx = hashmap_add(&data, &ten, sizeof (size_t));
+	array[idx] = ten;
+
+	size_t arg = 100;
+	hashmap_foreach(&data, each_add, &arg);
+
+	assert(90 == hashmap_len(&data));
+	for (size_t i=10; i<100; i++) {
+		size_t *idx = hashmap_lookup(&data, &i, sizeof (size_t));
+		assert(idx != NULL);
+		assert(i == array[*idx]);
+	}
 
 	hashmap_free(&data);
 }
@@ -149,6 +185,7 @@ static void test_update_difference() {
 
 int main() {
 	test_basic_operations();
+	test_foreach_add();
 	test_update_intersect();
 	test_update_union();
 	test_update_difference();

@@ -41,7 +41,7 @@ size_t bitmap_count(struct bitmap_data *data) {
 
 size_t bitmap_min(struct bitmap_data *data, int val) {
 	for (size_t i=0; i<bitmap_len(data); i++) {
-		if (bitmap_get(data, i) == val) return i;;
+		if (bitmap_get(data, i) == val) return i;
 	}
 	assert(!"no matching bits found");
 }

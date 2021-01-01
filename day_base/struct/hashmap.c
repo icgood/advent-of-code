@@ -159,14 +159,14 @@ void hashmap_update(struct hashmap_data *data, hashmap_op_t op, struct hashmap_d
 }
 
 void hashmap_foreach(struct hashmap_data *data, hashmap_foreach_t func, void *arg_ptr) {
-	struct hashmap_key *keys = data->keys;
-	void *value = hashmap_pointer(data);
-	size_t len = hashmap_len(data);
 	size_t entry_size = data->entry_size;
-	for (size_t i=0; i<len; i++) {
+	for (size_t i=0; ; i++) {
+		size_t len = hashmap_len(data);
+		if (i >= len) break;
+		struct hashmap_key *keys = data->keys;
 		struct hashmap_key *key = &keys[i];
+		void *value = hashmap_pointer(data) + (i * entry_size);
 		func(key, value, i, arg_ptr);
-		value += entry_size;
 	}
 }
 
