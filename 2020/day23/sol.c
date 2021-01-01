@@ -8,7 +8,7 @@
 #include "day_base/struct/deque.h"
 
 typedef unsigned long int number_t;
-typedef unsigned long 	int label_t;
+typedef unsigned long int label_t;
 
 static int label_matcher(deque_t *data, size_t node, const void *value_ptr, void *arg_ptr) {
 	const label_t *wanted_label = (label_t *) arg_ptr;
@@ -37,7 +37,7 @@ static size_t find_node(size_t label, size_t *starting_pos, size_t num_starting)
 
 static void move_cups(deque_t *deque, label_t *cups, size_t *starting_pos, size_t num_starting) {
 	label_t removed[3];
-	label_t current, destination;
+	label_t current = 0, destination = 0;
 	{
 		size_t idx = deque_peek(deque, 0, DEQUE_FRONT);
 		current = cups[idx];
